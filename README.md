@@ -24,7 +24,7 @@ gh auth status
 
 ## Usage
 
-This plugin is split into two: one for `plugins` and the other for `repositories`. Depending on what you need to set up, you can use either or both.
+This plugin is split into two: one for `plugins` and the other for `repositories` fetching. Depending on what you need to set up, you can use either or both.
 
 1. Setup for `plugins`:
 
@@ -58,7 +58,7 @@ This plugin is split into two: one for `plugins` and the other for `repositories
    val ghToken = ghCliAuth.token.get()
    ```
 
-**NOTE**: When using both plugins, ensure that you only apply the plugin version to settings plugin block and not to the project plugin block, as it will lead to a conflict.
+**NOTE**: When using both plugins, ensure that you **only** apply the plugin version to <u>settings</u> plugin block and not to the <u>project</u> plugin block, as it will lead to a conflict.
 
 ### Configuration
 
