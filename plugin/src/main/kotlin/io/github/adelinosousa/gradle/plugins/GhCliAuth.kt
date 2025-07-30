@@ -4,7 +4,7 @@ import org.gradle.api.GradleException
 import java.io.ByteArrayOutputStream
 
 object GhCliAuth {
-    const val DEBUG: Boolean = true
+    const val DEBUG: Boolean = false
     const val GITHUB_ORG: String = "gh.cli.auth.github.org"
     const val ENV_PROPERTY_NAME: String = "gh.cli.auth.env.name"
     val requiredScopes: Set<String> = setOf("read:packages", "repo", "read:org")
