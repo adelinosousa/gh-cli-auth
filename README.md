@@ -1,6 +1,6 @@
 # GitHub CLI Auth Gradle Plugin
 
-Gradle plugin that automatically configures access to GitHub organization plugins and packages. Authenticates by using credentials from the official GitHub CLI (gh), removing the need to store personal access tokens (PATs) in your project or gradle configuration.
+Gradle plugin that automatically configures access to GitHub organization maven plugins and packages. Authenticates using credentials from GitHub CLI and removes the need to store personal access tokens (PATs) in your project, environment or gradle configuration.
 
 ## Prerequisites
 
@@ -34,7 +34,7 @@ This plugin is split into two: one for `plugins` and the other for `repositories
    # settings.gradle
 
    plugins {
-       id 'dev.linos.gradle.plugins.settings.gh-cli-auth' version '1.0.0'
+       id 'io.github.adelinosousa.gradle.plugins.settings.gh-cli-auth' version '1.0.0'
    }
    ```
 
@@ -46,7 +46,7 @@ This plugin is split into two: one for `plugins` and the other for `repositories
    # build.gradle
 
    plugins {
-       id 'dev.linos.gradle.plugins.project.gh-cli-auth' version '1.0.0'
+       id 'io.github.adelinosousa.gradle.plugins.project.gh-cli-auth' version '1.0.0'
    }
    ```
 
@@ -80,7 +80,14 @@ gh.cli.auth.env.name=<environment-variable-name>
 
 ## Notes
 
-Currently not supported features:
+Currently **not** supported:
 
 - Dedicated GitHub Enterprise Servers or Hosts
 - Profile selection (the plugin uses the default from `gh`)
+- Only Maven repositories are supported (no Ivy or other types)
+
+## Contributing
+Contributions are welcome! Please read the contributing [guidelines](CONTRIBUTING.md).
+
+## License
+This project is licensed under the AGPL-3.0 License - see the [LICENSE](LICENSE) for details.
