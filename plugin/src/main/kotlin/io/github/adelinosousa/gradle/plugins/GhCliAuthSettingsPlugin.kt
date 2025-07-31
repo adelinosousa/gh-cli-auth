@@ -1,18 +1,16 @@
 package io.github.adelinosousa.gradle.plugins
 
-import org.gradle.api.Project
 import org.gradle.api.Plugin
-import org.gradle.api.provider.Property
+import org.gradle.api.initialization.Settings
+import java.net.URI
 
 @Suppress("unused")
-class GhCliAuthProjectPlugin : Plugin<Project> {
-    override fun apply(project: Project) {
-        val extension = project.extensions.create("ghCliAuth", GhCliAuthExtension::class.java)
+class GhCliAuthSettingsPlugin : Plugin<Settings> {
+    override fun apply(settings: Settings) {
+        println("Applying GitHubAuthPlugin to settings")
 
-        project.logger.info("Applying GitHubAuthPlugin to project")
-
-        val githubOrg = getGradleProperty(project, Config.GITHUB_ORG)
-        val gitEnvTokenName = getGradleProperty(project, Config.ENV_PROPERTY_NAME) ?: "GITHUB_TOKEN"
+        val githubOrg = getGradleProperty(settings, Config.GITHUB_ORG)
+        val gitEnvTokenName = getGradleProperty(settings, Config.ENV_PROPERTY_NAME) ?: "GITHUB_TOKEN"
 
         if (githubOrg.isNullOrEmpty()) {
             throw IllegalStateException("GitHub organization not specified. Please set the '${Config.GITHUB_ORG}' in your gradle.properties file.")
@@ -20,11 +18,9 @@ class GhCliAuthProjectPlugin : Plugin<Project> {
 
         val repoCredentials = Environment.getEnvCredentials(gitEnvTokenName) ?: getGhCliCredentials()
         if (repoCredentials.isValid()) {
-            // Set the extension token to share with other tasks
-            extension.token.set(repoCredentials.token)
-            project.repositories.maven {
+            settings.pluginManagement.repositories.maven {
                 name = "GitHubPackages"
-                url = project.uri("https://maven.pkg.github.com/$githubOrg/*")
+                url = URI("https://maven.pkg.github.com/$githubOrg/*")
                 credentials {
                     this.username = repoCredentials.username
                     this.password = repoCredentials.token
@@ -41,13 +37,9 @@ class GhCliAuthProjectPlugin : Plugin<Project> {
         return GhCliAuth.getGitHubCredentials(output)
     }
 
-    private fun getGradleProperty(project: Project, propertyName: String): String? {
-        return project.providers.gradleProperty(propertyName).let {
+    private fun getGradleProperty(settings: Settings, propertyName: String): String? {
+        return settings.providers.gradleProperty(propertyName).let {
             if (it.isPresent) it.get() else null
         }
     }
-}
-
-interface GhCliAuthExtension {
-    val token: Property<String?>
 }

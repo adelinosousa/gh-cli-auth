@@ -1,8 +1,11 @@
 plugins {
-//    `java-gradle-plugin`
     `kotlin-dsl`
     alias(libs.plugins.kotlin.jvm)
+    id("com.gradle.plugin-publish") version "1.3.1"
 }
+
+group = "io.github.adelinosousa"
+version = "1.0.0"
 
 repositories {
     mavenCentral()
@@ -15,9 +18,25 @@ dependencies {
 }
 
 gradlePlugin {
-    val greeting by plugins.creating {
-        id = "io.github.adelinosousa.gradle.plugins.project.gh-cli-auth"
-        implementationClass = "io.github.adelinosousa.gradle.plugins.GhCliAuthProjectPlugin"
+    website = "https://gh-cli-auth.linos.dev"
+    vcsUrl = "https://github.com/adelinosousa/gh-cli-auth"
+    plugins {
+        create("ghCliAuthProject") {
+            id = "io.github.adelinosousa.gradle.plugins.project.gh-cli-auth"
+            implementationClass = "io.github.adelinosousa.gradle.plugins.GhCliAuthProjectPlugin"
+            displayName = "Gradle GitHub CLI Auth Project Plugin"
+            description =
+                "Automatically configures access to GitHub Maven Packages for project using gh CLI. CI/CD friendly."
+            tags.set(listOf("github", "packages", "maven", "repository"))
+        }
+        create("ghCliAuthSettings") {
+            id = "io.github.adelinosousa.gradle.plugins.settings.gh-cli-auth"
+            implementationClass = "io.github.adelinosousa.gradle.plugins.GhCliAuthSettingsPlugin"
+            displayName = "Gradle GitHub CLI Auth Settings Plugin"
+            description =
+                "Automatically configures access to GitHub Maven Plugins for settings using gh CLI. CI/CD friendly."
+            tags.set(listOf("github", "plugin", "maven", "repository"))
+        }
     }
 }
 

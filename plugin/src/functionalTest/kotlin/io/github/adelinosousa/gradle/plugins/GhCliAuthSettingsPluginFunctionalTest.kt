@@ -6,7 +6,7 @@ import kotlin.test.Test
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.jupiter.api.io.TempDir
 
-class GhCliAuthPluginFunctionalTest {
+class GhCliAuthSettingsPluginFunctionalTest {
 
     @field:TempDir
     lateinit var projectDir: File
@@ -15,12 +15,12 @@ class GhCliAuthPluginFunctionalTest {
     private val settingsFile by lazy { projectDir.resolve("settings.gradle") }
 
     @Test fun `can run plugin`() {
-        settingsFile.writeText("")
-        buildFile.writeText("""
+        settingsFile.writeText("""
             plugins {
-                id('io.github.adelinosousa.gradle.plugins.project.gh-cli-auth')
+                id('io.github.adelinosousa.gradle.plugins.settings.gh-cli-auth')
             }
         """.trimIndent())
+        buildFile.writeText("")
 
         val result = GradleRunner.create()
             .forwardOutput()
@@ -31,6 +31,6 @@ class GhCliAuthPluginFunctionalTest {
             .buildAndFail()
 
         // Verify the result
-        assertTrue(result.output.contains("Applying GitHubAuthPlugin to project"))
+        assertTrue(result.output.contains("Applying GitHubAuthPlugin to settings"))
     }
 }
