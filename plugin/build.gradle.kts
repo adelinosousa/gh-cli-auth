@@ -35,7 +35,7 @@ gradlePlugin {
             displayName = "Gradle GitHub CLI Auth Settings Plugin"
             description =
                 "Automatically configures access to GitHub Maven Plugins for settings using gh CLI. CI/CD friendly."
-            tags.set(listOf("github", "plugin", "maven", "repository"))
+            tags.set(listOf("github", "packages", "maven", "repository"))
         }
     }
 }
