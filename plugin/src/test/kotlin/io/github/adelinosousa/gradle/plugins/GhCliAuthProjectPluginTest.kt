@@ -4,6 +4,7 @@ import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.spyk
 import io.mockk.unmockkAll
+import org.gradle.api.GradleException
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.internal.provider.Providers
 import org.gradle.testfixtures.ProjectBuilder
@@ -33,6 +34,7 @@ class GhCliAuthProjectPluginTest {
         val project = ProjectBuilder.builder().build()
         val spyProject = spyk(project)
 
+        every { GhCliAuth.checkGhCliAuthenticatedWithCorrectScopes() } returns ""
         every { GhCliAuth.getGitHubCredentials(any()) } returns RepositoryCredentials(testUsername, testToken)
         every { spyProject.providers.gradleProperty(Config.GITHUB_ORG) } returns Providers.of(testOrg)
         every { spyProject.providers.gradleProperty(Config.ENV_PROPERTY_NAME) } returns Providers.of("")
@@ -67,6 +69,7 @@ class GhCliAuthProjectPluginTest {
         val project = ProjectBuilder.builder().build()
         val spyProject = spyk(project)
 
+        every { GhCliAuth.checkGhCliAuthenticatedWithCorrectScopes() } returns ""
         every { GhCliAuth.getGitHubCredentials(any()) } returns RepositoryCredentials(testUsername, testToken)
         every { spyProject.providers.gradleProperty(Config.GITHUB_ORG) } returns Providers.of(testOrg)
         every { spyProject.providers.gradleProperty(Config.ENV_PROPERTY_NAME) } returns Providers.of("")
@@ -87,6 +90,7 @@ class GhCliAuthProjectPluginTest {
         val project = ProjectBuilder.builder().build()
         val spyProject = spyk(project)
 
+        every { GhCliAuth.checkGhCliAuthenticatedWithCorrectScopes() } returns ""
         every { GhCliAuth.getGitHubCredentials(any()) } returns RepositoryCredentials(null, null)
         every { spyProject.providers.gradleProperty(Config.GITHUB_ORG) } returns Providers.of(testOrg)
         every { spyProject.providers.gradleProperty(Config.ENV_PROPERTY_NAME) } returns Providers.of("")
@@ -98,6 +102,22 @@ class GhCliAuthProjectPluginTest {
         val repo = project.repositories.findByName("GitHubPackages")
         assertNull(repo)
         assertEquals("Token not found in environment variable '' or 'gh' CLI. Unable to configure GitHub Packages repository.", exception.message)
+    }
+
+    @Test fun `throws error when gh CLI is not installed`() {
+        val exceptionMessage = "Failed to authenticate: GitHub CLI is not installed or not found in PATH. Please install it before using this plugin."
+        val project = ProjectBuilder.builder().build()
+        val spyProject = spyk(project)
+
+        every { GhCliAuth.checkGhCliAuthenticatedWithCorrectScopes() } throws GradleException(exceptionMessage)
+        every { spyProject.providers.gradleProperty(Config.GITHUB_ORG) } returns Providers.of(testOrg)
+        every { spyProject.providers.gradleProperty(Config.ENV_PROPERTY_NAME) } returns Providers.of("")
+
+        val exception = assertThrows<GradleException> {
+            GhCliAuthProjectPlugin().apply(spyProject)
+        }
+
+        assertEquals(exceptionMessage, exception.message)
     }
 
     @Test fun `does not configure repository when github org property is missing`() {
