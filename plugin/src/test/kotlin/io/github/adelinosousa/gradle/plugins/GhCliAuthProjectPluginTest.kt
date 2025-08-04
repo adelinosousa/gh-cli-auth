@@ -105,9 +105,11 @@ class GhCliAuthProjectPluginTest {
     }
 
     @Test fun `throws error when gh CLI is not installed`() {
+        val exceptionMessage = "Failed to authenticate: GitHub CLI is not installed or not found in PATH. Please install it before using this plugin."
         val project = ProjectBuilder.builder().build()
         val spyProject = spyk(project)
 
+        every { GhCliAuth.checkGhCliAuthenticatedWithCorrectScopes() } throws GradleException(exceptionMessage)
         every { spyProject.providers.gradleProperty(Config.GITHUB_ORG) } returns Providers.of(testOrg)
         every { spyProject.providers.gradleProperty(Config.ENV_PROPERTY_NAME) } returns Providers.of("")
 
@@ -115,7 +117,7 @@ class GhCliAuthProjectPluginTest {
             GhCliAuthProjectPlugin().apply(spyProject)
         }
 
-        assertEquals("Failed to authenticate: GitHub CLI is not installed or not found in PATH. Please install it before using this plugin.", exception.message)
+        assertEquals(exceptionMessage, exception.message)
     }
 
     @Test fun `does not configure repository when github org property is missing`() {
