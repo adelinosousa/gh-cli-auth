@@ -1,3 +1,6 @@
+[![Gradle Plugin Portal](https://img.shields.io/gradle-plugin-portal/v/io.github.adelinosousa.gradle.plugins.settings.gh-cli-auth.svg?label=gh-cli-auth%20Settings%20Plugin)](https://plugins.gradle.org/plugin/io.github.adelinosousa.gradle.plugins.settings.gh-cli-auth)
+[![Gradle Plugin Portal](https://img.shields.io/gradle-plugin-portal/v/io.github.adelinosousa.gradle.plugins.project.gh-cli-auth.svg?label=gh-cli-auth%20Project%20Plugin)](https://plugins.gradle.org/plugin/io.github.adelinosousa.gradle.plugins.project.gh-cli-auth)
+
 # GitHub CLI Auth Gradle Plugin
 
 Gradle plugin that automatically configures access to GitHub organization maven plugins and packages. Authenticates using credentials from GitHub CLI and removes the need to store personal access tokens (PATs) in your project, environment or gradle configuration.
@@ -70,13 +73,16 @@ Regardless of which one you use, you need to specify your GitHub **organization*
 gh.cli.auth.github.org=<your-organization>
 ```
 
-You can also specify an **environment** variable as a fallback mechanism (for example, in CI/CD environments):
+You can also specify custom environment variable name for the GitHub CLI authentication token. Defaults `GITHUB_TOKEN`.
 
 ```properties
 # gradle.properties
 
 gh.cli.auth.env.name=<environment-variable-name>
 ```
+
+**NOTE**: Environment variable takes precedence over the GitHub CLI token mechanism. GitHub CLI is used as a fallback if the environment variable is not set. 
+This is by design, to ensure that the plugin remains performant and skips unnecessary checks/steps during CI/CD runs.
 
 ## Notes
 
