@@ -1,6 +1,7 @@
 package io.github.adelinosousa.gradle.plugins
 
 import org.gradle.api.Plugin
+import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.initialization.Settings
 import java.net.URI
 
@@ -18,14 +19,17 @@ class GhCliAuthSettingsPlugin : Plugin<Settings> {
 
         val repoCredentials = Environment.getEnvCredentials(gitEnvTokenName) ?: getGhCliCredentials()
         if (repoCredentials.isValid()) {
-            settings.pluginManagement.repositories.maven {
-                name = "GitHubPackages"
-                url = URI("https://maven.pkg.github.com/$githubOrg/*")
-                credentials {
+            val githubMavenRepository = { repo: MavenArtifactRepository ->
+                repo.name = "GitHubPackages"
+                repo.url = URI("https://maven.pkg.github.com/$githubOrg/*")
+                repo.credentials {
                     this.username = repoCredentials.username
                     this.password = repoCredentials.token
                 }
             }
+
+            settings.pluginManagement.repositories.maven(githubMavenRepository)
+            settings.dependencyResolutionManagement.repositories.maven(githubMavenRepository)
         } else {
             throw IllegalStateException("Token not found in environment variable '${gitEnvTokenName}' or 'gh' CLI. Unable to configure GitHub Packages repository.")
         }

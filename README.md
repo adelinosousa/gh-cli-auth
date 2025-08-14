@@ -27,21 +27,26 @@ gh auth status
 
 ## Usage
 
-This plugin is split into two: one for `plugins` and the other for `repositories` fetching. Depending on what you need to set up, you can use either or both.
+This plugin is split into two: one for `settings` and the other for `project`. Depending on your solution repository management, you can choose to use either one.
 
-1. Setup for `plugins`:
+1. Setup for `settings`:
 
    In your `settings.gradle` file, add the following:
 
    ```shell
    # settings.gradle
+   
+   # to ensure that the repositories are resolved from settings.gradle
+   dependencyResolutionManagement {
+        repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+    }
 
    plugins {
-       id 'io.github.adelinosousa.gradle.plugins.settings.gh-cli-auth' version '1.0.0'
+       id 'io.github.adelinosousa.gradle.plugins.settings.gh-cli-auth' version '1.0.1'
    }
    ```
 
-2. Setup for `repositories`:
+2. Setup for `project`:
 
    In your `build.gradle` file, add the following:
 
@@ -49,7 +54,7 @@ This plugin is split into two: one for `plugins` and the other for `repositories
    # build.gradle
 
    plugins {
-       id 'io.github.adelinosousa.gradle.plugins.project.gh-cli-auth' version '1.0.0'
+       id 'io.github.adelinosousa.gradle.plugins.project.gh-cli-auth' version '1.0.1'
    }
    ```
 

@@ -25,7 +25,8 @@ class GhCliAuthSettingsPluginTest {
     val testUsername = "test-user"
     val testToken = "test-token"
     val settings = mockk<Settings>(relaxed = true)
-    val mavenAction = slot<Action<in MavenArtifactRepository>>()
+    val pluginMavenAction = slot<Action<in MavenArtifactRepository>>()
+    val dependencyResolutionMavenAction = slot<Action<in MavenArtifactRepository>>()
     val mockRepo = mockk<MavenArtifactRepository>(relaxed = true)
     val mockCredentials = mockk<PasswordCredentials>(relaxed = true)
 
@@ -43,7 +44,8 @@ class GhCliAuthSettingsPluginTest {
         every { settings.providers.gradleProperty(Config.GITHUB_ORG) } returns Providers.of(testOrg)
         every { settings.providers.gradleProperty(Config.ENV_PROPERTY_NAME) } returns Providers.of(customEnvName)
         every { Environment.getEnvCredentials(customEnvName) } returns RepositoryCredentials(username = "", token = testToken)
-        every { settings.pluginManagement.repositories.maven(capture(mavenAction)) } returns mockk()
+        every { settings.pluginManagement.repositories.maven(capture(pluginMavenAction)) } returns mockk()
+        every { settings.dependencyResolutionManagement.repositories.maven(capture(dependencyResolutionMavenAction)) } returns mockk()
         every { mockRepo.credentials(any<Action<in PasswordCredentials>>()) } answers {
             val credentialsAction = firstArg<Action<in PasswordCredentials>>()
             credentialsAction.execute(mockCredentials)
@@ -51,9 +53,10 @@ class GhCliAuthSettingsPluginTest {
 
         GhCliAuthSettingsPlugin().apply(settings)
 
-        mavenAction.captured.execute(mockRepo)
+        pluginMavenAction.captured.execute(mockRepo)
+        dependencyResolutionMavenAction.captured.execute(mockRepo)
 
-        verify {
+        verify(exactly = 2) {
             mockRepo.name = "GitHubPackages"
             mockRepo.url = URI("https://maven.pkg.github.com/$testOrg/*")
             mockCredentials.username = ""
@@ -66,7 +69,8 @@ class GhCliAuthSettingsPluginTest {
         every { GhCliAuth.getGitHubCredentials(any()) } returns RepositoryCredentials(testUsername, testToken)
         every { settings.providers.gradleProperty(Config.GITHUB_ORG) } returns Providers.of(testOrg)
         every { settings.providers.gradleProperty(Config.ENV_PROPERTY_NAME) } returns Providers.of("")
-        every { settings.pluginManagement.repositories.maven(capture(mavenAction)) } returns mockk()
+        every { settings.pluginManagement.repositories.maven(capture(pluginMavenAction)) } returns mockk()
+        every { settings.dependencyResolutionManagement.repositories.maven(capture(dependencyResolutionMavenAction)) } returns mockk()
         every { mockRepo.credentials(any<Action<in PasswordCredentials>>()) } answers {
             val credentialsAction = firstArg<Action<in PasswordCredentials>>()
             credentialsAction.execute(mockCredentials)
@@ -74,9 +78,10 @@ class GhCliAuthSettingsPluginTest {
 
         GhCliAuthSettingsPlugin().apply(settings)
 
-        mavenAction.captured.execute(mockRepo)
+        pluginMavenAction.captured.execute(mockRepo)
+        dependencyResolutionMavenAction.captured.execute(mockRepo)
 
-        verify {
+        verify(exactly = 2) {
             mockRepo.name = "GitHubPackages"
             mockRepo.url = URI("https://maven.pkg.github.com/$testOrg/*")
             mockCredentials.username = testUsername
