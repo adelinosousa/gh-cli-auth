@@ -27,7 +27,7 @@ gh auth status
 
 ## Usage
 
-This plugin is split into two: one for `settings` and the other for `project`. Depending on your solution repository management, you can choose to use either one.
+This plugin is split into two: one for `settings` and the other for `project`. Depending on your solution repository management, you can choose to use either one or both.
 
 1. Setup for `settings`:
 
@@ -67,6 +67,7 @@ This plugin is split into two: one for `settings` and the other for `project`. D
    ```
 
 **NOTE**: When using both plugins, ensure that you **only** apply the plugin version to <u>settings</u> plugin block and not to the <u>project</u> plugin block, as it will lead to a conflict.
+You also won't be able to obtain GitHub token from the `ghCliAuth` extension if you're setting `RepositoriesMode` as `FAIL_ON_PROJECT_REPOS`, as it is only _currently_ available in the `project` plugin.
 
 ### Configuration
 
