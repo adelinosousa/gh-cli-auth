@@ -8,8 +8,6 @@ import java.net.URI
 @Suppress("unused")
 class GhCliAuthSettingsPlugin : Plugin<Settings> {
     override fun apply(settings: Settings) {
-        println("Applying GitHubAuthPlugin to settings")
-
         val githubOrg = getGradleProperty(settings, Config.GITHUB_ORG)
         val gitEnvTokenName = getGradleProperty(settings, Config.ENV_PROPERTY_NAME) ?: "GITHUB_TOKEN"
 
@@ -27,7 +25,7 @@ class GhCliAuthSettingsPlugin : Plugin<Settings> {
                     this.password = repoCredentials.token
                 }
             }
-
+            println("Registering Maven GitHub repository for organization: $githubOrg")
             settings.pluginManagement.repositories.maven(githubMavenRepository)
             settings.dependencyResolutionManagement.repositories.maven(githubMavenRepository)
         } else {
@@ -36,7 +34,6 @@ class GhCliAuthSettingsPlugin : Plugin<Settings> {
     }
 
     private fun getGhCliCredentials(settings: Settings): RepositoryCredentials {
-        println("No GitHub credentials found in environment variables. Attempting to use 'gh' CLI.")
         val authStatusProvider = settings.providers.of(GitHubCLIProcess::class.java) {}
         val output = GhCliAuth.checkGhCliAuthenticatedWithCorrectScopes(authStatusProvider)
         return GhCliAuth.getGitHubCredentials(output.get())
