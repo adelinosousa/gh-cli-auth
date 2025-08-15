@@ -1,12 +1,15 @@
 package io.github.adelinosousa.gradle.plugins
 
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.spyk
 import io.mockk.unmockkAll
 import org.gradle.api.GradleException
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.internal.provider.Providers
+import org.gradle.api.provider.Provider
+import org.gradle.api.provider.ProviderFactory
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.assertThrows
 import kotlin.IllegalStateException
@@ -21,6 +24,8 @@ class GhCliAuthProjectPluginTest {
     val testOrg = "test-org"
     val testUsername = "test-user"
     val testToken = "test-token"
+    val providerFactory = mockk<ProviderFactory>(relaxed = true)
+    val cliProcessProvider = mockk<Provider<String>>(relaxed = true)
 
     @BeforeTest fun setUp() {
         mockkObject(GhCliAuth, Environment)
@@ -34,10 +39,13 @@ class GhCliAuthProjectPluginTest {
         val project = ProjectBuilder.builder().build()
         val spyProject = spyk(project)
 
-        every { GhCliAuth.checkGhCliAuthenticatedWithCorrectScopes() } returns ""
+        every { spyProject.providers } returns providerFactory
+
+        every { GhCliAuth.checkGhCliAuthenticatedWithCorrectScopes(any()) } returns Providers.of("")
         every { GhCliAuth.getGitHubCredentials(any()) } returns RepositoryCredentials(testUsername, testToken)
-        every { spyProject.providers.gradleProperty(Config.GITHUB_ORG) } returns Providers.of(testOrg)
-        every { spyProject.providers.gradleProperty(Config.ENV_PROPERTY_NAME) } returns Providers.of("")
+        every { providerFactory.gradleProperty(Config.GITHUB_ORG) } returns Providers.of(testOrg)
+        every { providerFactory.gradleProperty(Config.ENV_PROPERTY_NAME) } returns Providers.of("")
+        every { providerFactory.of(eq(GitHubCLIProcess::class.java), any()) } returns cliProcessProvider
 
         GhCliAuthProjectPlugin().apply(spyProject)
 
@@ -69,10 +77,13 @@ class GhCliAuthProjectPluginTest {
         val project = ProjectBuilder.builder().build()
         val spyProject = spyk(project)
 
-        every { GhCliAuth.checkGhCliAuthenticatedWithCorrectScopes() } returns ""
+        every { spyProject.providers } returns providerFactory
+
+        every { GhCliAuth.checkGhCliAuthenticatedWithCorrectScopes(any()) } returns Providers.of("")
         every { GhCliAuth.getGitHubCredentials(any()) } returns RepositoryCredentials(testUsername, testToken)
-        every { spyProject.providers.gradleProperty(Config.GITHUB_ORG) } returns Providers.of(testOrg)
-        every { spyProject.providers.gradleProperty(Config.ENV_PROPERTY_NAME) } returns Providers.of("")
+        every { providerFactory.gradleProperty(Config.GITHUB_ORG) } returns Providers.of(testOrg)
+        every { providerFactory.gradleProperty(Config.ENV_PROPERTY_NAME) } returns Providers.of("")
+        every { providerFactory.of(eq(GitHubCLIProcess::class.java), any()) } returns cliProcessProvider
 
         GhCliAuthProjectPlugin().apply(spyProject)
 
@@ -90,10 +101,13 @@ class GhCliAuthProjectPluginTest {
         val project = ProjectBuilder.builder().build()
         val spyProject = spyk(project)
 
-        every { GhCliAuth.checkGhCliAuthenticatedWithCorrectScopes() } returns ""
+        every { spyProject.providers } returns providerFactory
+
+        every { GhCliAuth.checkGhCliAuthenticatedWithCorrectScopes(any()) } returns Providers.of("")
         every { GhCliAuth.getGitHubCredentials(any()) } returns RepositoryCredentials(null, null)
-        every { spyProject.providers.gradleProperty(Config.GITHUB_ORG) } returns Providers.of(testOrg)
-        every { spyProject.providers.gradleProperty(Config.ENV_PROPERTY_NAME) } returns Providers.of("")
+        every { providerFactory.gradleProperty(Config.GITHUB_ORG) } returns Providers.of(testOrg)
+        every { providerFactory.gradleProperty(Config.ENV_PROPERTY_NAME) } returns Providers.of("")
+        every { providerFactory.of(eq(GitHubCLIProcess::class.java), any()) } returns cliProcessProvider
 
         val exception = assertThrows<IllegalStateException> {
             GhCliAuthProjectPlugin().apply(spyProject)
@@ -109,9 +123,12 @@ class GhCliAuthProjectPluginTest {
         val project = ProjectBuilder.builder().build()
         val spyProject = spyk(project)
 
-        every { GhCliAuth.checkGhCliAuthenticatedWithCorrectScopes() } throws GradleException(exceptionMessage)
-        every { spyProject.providers.gradleProperty(Config.GITHUB_ORG) } returns Providers.of(testOrg)
-        every { spyProject.providers.gradleProperty(Config.ENV_PROPERTY_NAME) } returns Providers.of("")
+        every { spyProject.providers } returns providerFactory
+
+        every { GhCliAuth.checkGhCliAuthenticatedWithCorrectScopes(any()) } throws GradleException(exceptionMessage)
+        every { providerFactory.gradleProperty(Config.GITHUB_ORG) } returns Providers.of(testOrg)
+        every { providerFactory.gradleProperty(Config.ENV_PROPERTY_NAME) } returns Providers.of("")
+        every { providerFactory.of(eq(GitHubCLIProcess::class.java), any()) } returns cliProcessProvider
 
         val exception = assertThrows<GradleException> {
             GhCliAuthProjectPlugin().apply(spyProject)

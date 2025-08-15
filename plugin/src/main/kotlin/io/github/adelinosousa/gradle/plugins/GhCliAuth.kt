@@ -1,37 +1,23 @@
 package io.github.adelinosousa.gradle.plugins
 
 import org.gradle.api.GradleException
+import org.gradle.api.provider.Provider
 
 object GhCliAuth {
     val requiredScopes: Set<String> = setOf("read:packages", "repo", "read:org")
-    var ghCLIProcess: GitHubCLIProcessProvider = GitHubCLIProcess()
 
-    private fun checkGhCliInstalled() {
-        try {
-            ghCLIProcess.isGhCliInstalled()
-        } catch (_: Exception) {
-            throw GradleException("GitHub CLI is not installed or not found in PATH. Please install it before using this plugin.")
-        }
-    }
-
-    fun checkGhCliAuthenticatedWithCorrectScopes(): String {
-        try {
-            checkGhCliInstalled()
-
-            val output = ghCLIProcess.getGhCliAuthStatus()
+    fun checkGhCliAuthenticatedWithCorrectScopes(authStatusProvider: Provider<String>): Provider<String> {
+        return authStatusProvider.map { output ->
             if (output.contains("Token:")) {
                 val scopesLine = output.lines().firstOrNull { it.contains("Token scopes:") }
                 val scopes = scopesLine?.substringAfter(":")?.trim()?.split(",")?.map { it.replace("'", "").trim() }
                     ?: emptyList()
 
                 if (scopes.containsAll(requiredScopes)) {
-                    return output
+                    return@map output
                 }
             }
-
             throw GradleException("GitHub CLI is not authenticated or does not have the required scopes $requiredScopes")
-        } catch (e: Exception) {
-            throw GradleException("Failed to authenticate: ${e.message}")
         }
     }
 
