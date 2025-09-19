@@ -1,0 +1,44 @@
+name: Publish Plugin
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (e.g., 1.0.0)'
+        required: true
+        default: '1.0.0'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Validate Plugin
+        id: validate
+        shell: bash
+        run: |
+          echo "Validating version ${{ github.event.inputs.version }}"
+          
+          ./gradlew publishPlugins --validate-only
+
+      - name: Publish Plugin
+        shell: bash
+        run: |
+          echo "Publishing version ${{ github.event.inputs.version }}"
+          
+          ./gradlew publishPlugins
+        env:
+          GRADLE_PUBLISH_KEY: ${{ secrets.GRADLE_PUBLISH_KEY }}
+          GRADLE_PUBLISH_SECRET: ${{ secrets.GRADLE_PUBLISH_SECRET }}
+          GRADLE_PUBLISH_VERSION: ${{ github.event.inputs.version }}
