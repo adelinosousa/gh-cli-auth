@@ -42,7 +42,7 @@ This plugin is split into two: one for `settings` and the other for `project`. D
     }
 
    plugins {
-       id 'io.github.adelinosousa.gradle.plugins.settings.gh-cli-auth' version '1.0.1'
+       id 'io.github.adelinosousa.gradle.plugins.settings.gh-cli-auth' version '1.0.4'
    }
    ```
 
@@ -54,7 +54,7 @@ This plugin is split into two: one for `settings` and the other for `project`. D
    # build.gradle
 
    plugins {
-       id 'io.github.adelinosousa.gradle.plugins.project.gh-cli-auth' version '1.0.1'
+       id 'io.github.adelinosousa.gradle.plugins.project.gh-cli-auth' version '1.0.4'
    }
    ```
 
@@ -68,6 +68,7 @@ This plugin is split into two: one for `settings` and the other for `project`. D
 
 **NOTE**: When using both plugins, ensure that you **only** apply the plugin version to <u>settings</u> plugin block and not to the <u>project</u> plugin block, as it will lead to a conflict.
 You also won't be able to obtain GitHub token from the `ghCliAuth` extension if you're setting `RepositoriesMode` as `FAIL_ON_PROJECT_REPOS`, as it is only _currently_ available in the `project` plugin.
+This plugin is also **not** compatible with locally precompiled plugin scripts in your `settings.gradle.kts` file, due to the way Gradle handles plugin resolution during the initialization phase.
 
 ### Configuration
 
