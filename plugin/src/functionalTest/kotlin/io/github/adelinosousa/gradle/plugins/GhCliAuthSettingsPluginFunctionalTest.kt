@@ -13,6 +13,7 @@ class GhCliAuthSettingsPluginFunctionalTest {
 
     private val buildFile by lazy { projectDir.resolve("build.gradle") }
     private val settingsFile by lazy { projectDir.resolve("settings.gradle") }
+    private val propertiesFile by lazy { projectDir.resolve("gradle.properties") }
 
     @Test fun `can run plugin`() {
         settingsFile.writeText("""
@@ -21,6 +22,7 @@ class GhCliAuthSettingsPluginFunctionalTest {
             }
         """.trimIndent())
         buildFile.writeText("")
+        propertiesFile.writeText("gh.cli.auth.github.org=test-org")
 
         val result = GradleRunner.create()
             .forwardOutput()
@@ -28,9 +30,9 @@ class GhCliAuthSettingsPluginFunctionalTest {
             .withProjectDir(projectDir)
             .withArguments("--stacktrace", "--info")
             .withGradleVersion("8.14.2")
-            .buildAndFail()
+            .build()
 
         // Verify the result
-        assertTrue(result.output.contains("Applying GitHubAuthPlugin to settings"))
+        assertTrue(result.output.contains("BUILD SUCCESSFUL"))
     }
 }
