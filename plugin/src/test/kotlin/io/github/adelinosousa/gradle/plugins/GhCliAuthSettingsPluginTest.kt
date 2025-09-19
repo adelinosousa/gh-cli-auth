@@ -65,7 +65,7 @@ class GhCliAuthSettingsPluginTest {
     }
 
     @Test fun `configures maven repository with gh CLI credentials`() {
-        every { GhCliAuth.checkGhCliAuthenticatedWithCorrectScopes() } returns ""
+        every { GhCliAuth.checkGhCliAuthenticatedWithCorrectScopes(any()) } returns Providers.of("")
         every { GhCliAuth.getGitHubCredentials(any()) } returns RepositoryCredentials(testUsername, testToken)
         every { settings.providers.gradleProperty(Config.GITHUB_ORG) } returns Providers.of(testOrg)
         every { settings.providers.gradleProperty(Config.ENV_PROPERTY_NAME) } returns Providers.of("")
@@ -90,7 +90,7 @@ class GhCliAuthSettingsPluginTest {
     }
 
     @Test fun `throws error when repository is not configured with gh CLI credentials`() {
-        every { GhCliAuth.checkGhCliAuthenticatedWithCorrectScopes() } returns ""
+        every { GhCliAuth.checkGhCliAuthenticatedWithCorrectScopes(any()) } returns Providers.of("")
         every { GhCliAuth.getGitHubCredentials(any()) } returns RepositoryCredentials(null, null)
         every { settings.providers.gradleProperty(Config.GITHUB_ORG) } returns Providers.of(testOrg)
         every { settings.providers.gradleProperty(Config.ENV_PROPERTY_NAME) } returns Providers.of("")
@@ -105,7 +105,7 @@ class GhCliAuthSettingsPluginTest {
     @Test fun `throws error when gh CLI is not installed`() {
         val exceptionMessage = "Failed to authenticate: GitHub CLI is not installed or not found in PATH. Please install it before using this plugin."
 
-        every { GhCliAuth.checkGhCliAuthenticatedWithCorrectScopes() } throws GradleException(exceptionMessage)
+        every { GhCliAuth.checkGhCliAuthenticatedWithCorrectScopes(any()) } throws GradleException(exceptionMessage)
         every { settings.providers.gradleProperty(Config.GITHUB_ORG) } returns Providers.of(testOrg)
         every { settings.providers.gradleProperty(Config.ENV_PROPERTY_NAME) } returns Providers.of("")
 

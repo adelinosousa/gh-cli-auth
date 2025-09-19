@@ -9,8 +9,6 @@ class GhCliAuthProjectPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val extension = project.extensions.create("ghCliAuth", GhCliAuthExtension::class.java)
 
-        project.logger.info("Applying GitHubAuthPlugin to project")
-
         val githubOrg = getGradleProperty(project, Config.GITHUB_ORG)
         val gitEnvTokenName = getGradleProperty(project, Config.ENV_PROPERTY_NAME) ?: "GITHUB_TOKEN"
 
@@ -18,9 +16,10 @@ class GhCliAuthProjectPlugin : Plugin<Project> {
             throw IllegalStateException("GitHub organization not specified. Please set the '${Config.GITHUB_ORG}' in your gradle.properties file.")
         }
 
-        val repoCredentials = Environment.getEnvCredentials(gitEnvTokenName) ?: getGhCliCredentials()
+        val repoCredentials = Environment.getEnvCredentials(gitEnvTokenName) ?: getGhCliCredentials(project)
         if (repoCredentials.isValid()) {
             // Set the extension token to share with other tasks
+            println("Registering Maven GitHub repository for organization: $githubOrg")
             extension.token.set(repoCredentials.token)
             project.repositories.maven {
                 name = "GitHubPackages"
@@ -35,16 +34,14 @@ class GhCliAuthProjectPlugin : Plugin<Project> {
         }
     }
 
-    private fun getGhCliCredentials(): RepositoryCredentials {
-        println("No GitHub credentials found in environment variables. Attempting to use 'gh' CLI.")
-        val output = GhCliAuth.checkGhCliAuthenticatedWithCorrectScopes()
-        return GhCliAuth.getGitHubCredentials(output)
+    private fun getGhCliCredentials(project: Project): RepositoryCredentials {
+        val authStatusProvider = project.providers.of(GitHubCLIProcess::class.java) {}
+        val output = GhCliAuth.checkGhCliAuthenticatedWithCorrectScopes(authStatusProvider)
+        return GhCliAuth.getGitHubCredentials(output.get())
     }
 
     private fun getGradleProperty(project: Project, propertyName: String): String? {
-        return project.providers.gradleProperty(propertyName).let {
-            if (it.isPresent) it.get() else null
-        }
+        return project.providers.gradleProperty(propertyName).orNull
     }
 }
 
