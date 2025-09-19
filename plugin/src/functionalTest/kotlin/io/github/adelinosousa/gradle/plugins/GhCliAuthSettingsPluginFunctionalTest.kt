@@ -30,9 +30,9 @@ class GhCliAuthSettingsPluginFunctionalTest {
             .withProjectDir(projectDir)
             .withArguments("--stacktrace", "--info")
             .withGradleVersion("8.14.2")
-            .build()
+            .buildAndFail()
 
         // Verify the result
-        assertTrue(result.output.contains("BUILD SUCCESSFUL"))
+        assertTrue(result.output.contains("GitHub CLI is not authenticated or does not have the required scopes"))
     }
 }
