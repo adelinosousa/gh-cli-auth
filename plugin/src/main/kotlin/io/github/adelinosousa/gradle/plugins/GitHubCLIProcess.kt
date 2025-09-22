@@ -25,19 +25,10 @@ abstract class GitHubCLIProcess : ValueSource<String, ValueSourceParameters.None
             if (process.exitValue == 0) {
                 outputStream.toString().trim()
             } else {
-                val checkInstall = execOperations.exec {
-                    commandLine("gh", "--version")
-                    isIgnoreExitValue = true
-                }
-
-                if (checkInstall.exitValue != 0) {
-                    throw IllegalStateException("GitHub CLI is not installed or not found in PATH. Please install it before using this plugin.")
-                }
-
-                throw IllegalStateException("Failed to execute 'gh auth status'")
+                throw IllegalStateException("Failed to process GitHub CLI command.")
             }
         } catch (e: Exception) {
-            throw IllegalStateException("Failed to authenticate: ${e.message}", e)
+            throw IllegalStateException("Failed to authenticate: ${e.message}. GitHub CLI is probably not installed or not found in PATH. Please install it before using this plugin, more information visit: https://gh-cli-auth.digibit.uk.", e)
         }
     }
 
