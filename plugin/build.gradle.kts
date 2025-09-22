@@ -18,7 +18,7 @@ dependencies {
 }
 
 gradlePlugin {
-    website = "https://gh-cli-auth.linos.dev"
+    website = "https://gh-cli-auth.digibit.uk"
     vcsUrl = "https://github.com/adelinosousa/gh-cli-auth"
     plugins {
         create("ghCliAuthProject") {
