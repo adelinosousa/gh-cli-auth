@@ -10,13 +10,13 @@ Gradle plugin that automatically configures access to GitHub organization maven 
 You need to have [GitHub CLI](https://cli.github.com/) installed on your system and be logged in to your GitHub account:
 
 ```bash
-gh auth login --scopes "read:packages,repo,read:org"
+gh auth login --scopes "read:packages,read:org"
 ```
 
 If you're already logged in but don't have the required scopes, you can refresh your authentication using:
 
 ```bash
-gh auth refresh --scopes "read:packages,repo,read:org"
+gh auth refresh --scopes "read:packages,read:org"
 ```
 
 To check your current GitHub CLI authentication status, do:
@@ -42,7 +42,7 @@ This plugin is split into two: one for `settings` and the other for `project`. D
     }
 
    plugins {
-       id 'io.github.adelinosousa.gradle.plugins.settings.gh-cli-auth' version '1.0.4'
+       id 'io.github.adelinosousa.gradle.plugins.settings.gh-cli-auth' version '1.0.5'
    }
    ```
 
@@ -54,7 +54,7 @@ This plugin is split into two: one for `settings` and the other for `project`. D
    # build.gradle
 
    plugins {
-       id 'io.github.adelinosousa.gradle.plugins.project.gh-cli-auth' version '1.0.4'
+       id 'io.github.adelinosousa.gradle.plugins.project.gh-cli-auth' version '1.0.5'
    }
    ```
 
