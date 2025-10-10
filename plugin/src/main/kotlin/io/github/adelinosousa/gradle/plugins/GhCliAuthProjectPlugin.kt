@@ -2,10 +2,14 @@ package io.github.adelinosousa.gradle.plugins
 
 import org.gradle.api.Project
 import org.gradle.api.Plugin
+import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
 
-@Suppress("unused")
-class GhCliAuthProjectPlugin : Plugin<Project> {
+internal class GhCliAuthProjectPlugin : Plugin<Project> {
+    private companion object {
+        private val logger = Logging.getLogger(GhCliAuthSettingsPlugin::class.java)
+    }
+
     override fun apply(project: Project) {
         val extension = project.extensions.create("ghCliAuth", GhCliAuthExtension::class.java)
 
@@ -18,8 +22,8 @@ class GhCliAuthProjectPlugin : Plugin<Project> {
 
         val repoCredentials = Environment.getEnvCredentials(gitEnvTokenName) ?: getGhCliCredentials(project)
         if (repoCredentials.isValid()) {
+            logger.info("Registering Maven GitHub repository for organization: $githubOrg")
             // Set the extension token to share with other tasks
-            println("Registering Maven GitHub repository for organization: $githubOrg")
             extension.token.set(repoCredentials.token)
             project.repositories.maven {
                 name = "GitHubPackages"
@@ -45,6 +49,6 @@ class GhCliAuthProjectPlugin : Plugin<Project> {
     }
 }
 
-interface GhCliAuthExtension {
-    val token: Property<String?>
+public interface GhCliAuthExtension {
+    public val token: Property<String?>
 }

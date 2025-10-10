@@ -7,10 +7,10 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import javax.inject.Inject
 
-abstract class GitHubCLIProcess : ValueSource<String, ValueSourceParameters.None> {
+internal abstract class GitHubCLIProcess : ValueSource<String, ValueSourceParameters.None> {
 
     @get:Inject
-    abstract val execOperations: ExecOperations
+    internal abstract val execOperations: ExecOperations
 
     override fun obtain(): String? {
         return try {

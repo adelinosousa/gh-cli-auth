@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
+
 plugins {
     `kotlin-dsl`
     alias(libs.plugins.kotlin.jvm)
@@ -6,6 +8,10 @@ plugins {
 
 group = "io.github.adelinosousa"
 version = System.getenv("GRADLE_PUBLISH_VERSION") ?: project.findProperty("gradle.publish.version") ?: "1.0.1"
+
+kotlin {
+    explicitApi = ExplicitApiMode.Strict
+}
 
 repositories {
     mavenCentral()

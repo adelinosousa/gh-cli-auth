@@ -3,10 +3,10 @@ package io.github.adelinosousa.gradle.plugins
 import org.gradle.api.GradleException
 import org.gradle.api.provider.Provider
 
-object GhCliAuth {
-    val requiredScopes: Set<String> = setOf("read:packages", "repo", "read:org")
+internal object GhCliAuth {
+    val requiredScopes: Set<String> = setOf("read:packages", "read:org")
 
-    fun checkGhCliAuthenticatedWithCorrectScopes(authStatusProvider: Provider<String>): Provider<String> {
+    internal fun checkGhCliAuthenticatedWithCorrectScopes(authStatusProvider: Provider<String>): Provider<String> {
         return authStatusProvider.map { output ->
             if (output.contains("Token:")) {
                 val scopesLine = output.lines().firstOrNull { it.contains("Token scopes:") }
@@ -21,7 +21,7 @@ object GhCliAuth {
         }
     }
 
-    fun getGitHubCredentials(output: String): RepositoryCredentials {
+    internal fun getGitHubCredentials(output: String): RepositoryCredentials {
         try {
             val userLine = output.lines().firstOrNull { it.contains("Logged in to github.com account") }
             val tokenLine = output.lines().firstOrNull { it.contains("Token:") }
