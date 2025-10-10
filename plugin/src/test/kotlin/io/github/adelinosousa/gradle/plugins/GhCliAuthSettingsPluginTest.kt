@@ -44,6 +44,8 @@ class GhCliAuthSettingsPluginTest {
         every { settings.providers.gradleProperty(Config.GITHUB_ORG) } returns Providers.of(testOrg)
         every { settings.providers.gradleProperty(Config.ENV_PROPERTY_NAME) } returns Providers.of(customEnvName)
         every { Environment.getEnvCredentials(customEnvName) } returns RepositoryCredentials(username = "", token = testToken)
+        every { settings.pluginManagement.repositories.findByName(any()) } returns null
+        every { settings.dependencyResolutionManagement.repositories.findByName(any()) } returns null
         every { settings.pluginManagement.repositories.maven(capture(pluginMavenAction)) } returns mockk()
         every { settings.dependencyResolutionManagement.repositories.maven(capture(dependencyResolutionMavenAction)) } returns mockk()
         every { mockRepo.credentials(any<Action<in PasswordCredentials>>()) } answers {
@@ -69,6 +71,8 @@ class GhCliAuthSettingsPluginTest {
         every { GhCliAuth.getGitHubCredentials(any()) } returns RepositoryCredentials(testUsername, testToken)
         every { settings.providers.gradleProperty(Config.GITHUB_ORG) } returns Providers.of(testOrg)
         every { settings.providers.gradleProperty(Config.ENV_PROPERTY_NAME) } returns Providers.of("")
+        every { settings.pluginManagement.repositories.findByName(any()) } returns null
+        every { settings.dependencyResolutionManagement.repositories.findByName(any()) } returns null
         every { settings.pluginManagement.repositories.maven(capture(pluginMavenAction)) } returns mockk()
         every { settings.dependencyResolutionManagement.repositories.maven(capture(dependencyResolutionMavenAction)) } returns mockk()
         every { mockRepo.credentials(any<Action<in PasswordCredentials>>()) } answers {

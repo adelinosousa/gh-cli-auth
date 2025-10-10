@@ -36,7 +36,7 @@ This plugin is split into two: one for `settings` and the other for `project`. D
    ```shell
    # settings.gradle
    
-   # to ensure that the repositories are resolved from settings.gradle
+   # (optional) ensure that the repositories are resolved from settings.gradle
    dependencyResolutionManagement {
         repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
     }
@@ -66,9 +66,10 @@ This plugin is split into two: one for `settings` and the other for `project`. D
    val ghToken = ghCliAuth.token.get()
    ```
 
-**NOTE**: When using both plugins, ensure that you **only** apply the plugin version to <u>settings</u> plugin block and not to the <u>project</u> plugin block, as it will lead to a conflict.
-You also won't be able to obtain GitHub token from the `ghCliAuth` extension if you're setting `RepositoriesMode` as `FAIL_ON_PROJECT_REPOS`, as it is only _currently_ available in the `project` plugin.
-This plugin is also **not** compatible with locally precompiled plugin scripts in your `settings.gradle.kts` file, due to the way Gradle handles plugin resolution during the initialization phase.
+### Important Notes
+- When using both plugins, ensure that you **only** apply the plugin version to <u>settings</u> plugin block and not to the <u>project</u> plugin block, as it will lead to a conflict.
+- You won't be able to obtain GitHub token from the `ghCliAuth` extension if you're setting `RepositoriesMode` as `FAIL_ON_PROJECT_REPOS`, as it is only _currently_ available in the `project` plugin.
+- By default, the settings plugin will configure default repositories for plugins and dependencies (google, mavenCentral, gradlePluginPortal). This is to ensure default repositories are always available.
 
 ### Configuration
 

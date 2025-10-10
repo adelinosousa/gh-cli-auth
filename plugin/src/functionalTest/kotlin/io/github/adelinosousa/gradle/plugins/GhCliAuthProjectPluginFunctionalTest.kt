@@ -30,9 +30,9 @@ class GhCliAuthProjectPluginFunctionalTest {
             .withProjectDir(projectDir)
             .withArguments("--stacktrace", "--info")
             .withGradleVersion("8.14.2")
-            .buildAndFail()
+            .build()
 
         // Verify the result
-        assertTrue(result.output.contains("GitHub CLI is not authenticated or does not have the required scopes"))
+        assertTrue(result.output.contains("Registering Maven GitHub repository for organization: test-org"))
     }
 }
