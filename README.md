@@ -42,7 +42,15 @@ This plugin is split into two: one for `settings` and the other for `project`. D
     }
 
    plugins {
-       id 'io.github.adelinosousa.gradle.plugins.settings.gh-cli-auth' version '1.0.5'
+       id 'io.github.adelinosousa.gradle.plugins.settings.gh-cli-auth' version '1.1.0'
+   }
+   ```
+   
+   If you need to consume the token in your own settings plugin, you can access it via gradle extra properties:
+
+   ```shell
+   if (settings.gradle.extra.has("gh-cli-auth-token")) {
+      val ghToken = settings.gradle.extra["gh-cli-auth-token"] as String
    }
    ```
 
@@ -54,11 +62,11 @@ This plugin is split into two: one for `settings` and the other for `project`. D
    # build.gradle
 
    plugins {
-       id 'io.github.adelinosousa.gradle.plugins.project.gh-cli-auth' version '1.0.5'
+       id 'io.github.adelinosousa.gradle.plugins.project.gh-cli-auth' version '1.1.0'
    }
    ```
 
-   This plugin also exposes a `ghCliAuth` extension to access the token, if needed:
+   This plugin exposes a `ghCliAuth` extension to access the token, if needed:
 
    ```shell
    # build.gradle

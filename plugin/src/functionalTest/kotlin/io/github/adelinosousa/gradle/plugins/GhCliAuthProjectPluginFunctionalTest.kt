@@ -32,7 +32,30 @@ class GhCliAuthProjectPluginFunctionalTest {
             .withGradleVersion("8.14.2")
             .build()
 
-        // Verify the result
+        assertTrue(result.output.contains("Registering Maven GitHub repository for organization: test-org"))
+    }
+
+    @Test fun `runs plugin with custom env variable name`() {
+        settingsFile.writeText("")
+        buildFile.writeText("""
+            plugins {
+                id('io.github.adelinosousa.gradle.plugins.project.gh-cli-auth')
+            }
+        """.trimIndent())
+        propertiesFile.writeText("""
+            gh.cli.auth.github.org=test-org
+            gh.cli.auth.env.name=CUSTOM_ENV_VAR
+        """.trimIndent())
+
+        val result = GradleRunner.create()
+            .forwardOutput()
+            .withPluginClasspath()
+            .withProjectDir(projectDir)
+            .withArguments("--stacktrace", "--info")
+            .withGradleVersion("8.14.2")
+            .withEnvironment(mapOf("CUSTOM_ENV_VAR" to "ghp_exampletoken1234567890"))
+            .build()
+
         assertTrue(result.output.contains("Registering Maven GitHub repository for organization: test-org"))
     }
 }
