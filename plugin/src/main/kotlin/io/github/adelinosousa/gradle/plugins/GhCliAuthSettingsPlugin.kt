@@ -30,6 +30,7 @@ public class GhCliAuthSettingsPlugin : Plugin<Settings> {
             // Set the token to share with other settings plugins
             settings.gradle.extra.set(Config.EXTRA_TOKEN_NAME, repoCredentials.token)
             settings.pluginManagement.repositories.addRepositoriesWithDefaults(githubOrg, repoCredentials)
+            @Suppress("UnstableApiUsage")
             settings.dependencyResolutionManagement.repositories.addRepositoriesWithDefaults(githubOrg, repoCredentials)
         } else {
             throw IllegalStateException("Token not found in environment variable '${gitEnvTokenName}' or 'gh' CLI. Unable to configure GitHub Packages repository.")
