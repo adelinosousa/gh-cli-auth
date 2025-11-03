@@ -7,7 +7,7 @@ import org.gradle.api.provider.ValueSource
 import org.gradle.api.provider.ValueSourceParameters
 import org.gradle.process.ExecOperations
 
-internal abstract class GitHubCLIProcess : ValueSource<String, ValueSourceParameters.None> {
+internal abstract class GhCLIProcess : ValueSource<String, ValueSourceParameters.None> {
 
     @get:Inject
     internal abstract val execOperations: ExecOperations

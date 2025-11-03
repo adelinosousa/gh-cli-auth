@@ -4,7 +4,7 @@ import io.github.adelinosousa.gradle.extensions.GhCliAuthExtension
 import io.github.adelinosousa.gradle.internal.Config
 import io.github.adelinosousa.gradle.internal.Environment
 import io.github.adelinosousa.gradle.internal.GhCliAuth
-import io.github.adelinosousa.gradle.internal.GitHubCLIProcess
+import io.github.adelinosousa.gradle.internal.GhCLIProcess
 import io.github.adelinosousa.gradle.internal.RepositoryCredentials
 import org.gradle.api.Project
 import org.gradle.api.Plugin
@@ -44,7 +44,7 @@ public class GhCliAuthProjectPlugin : Plugin<Project> {
     }
 
     private fun getGhCliCredentials(project: Project): RepositoryCredentials {
-        val authStatusProvider = project.providers.of(GitHubCLIProcess::class.java) {}
+        val authStatusProvider = project.providers.of(GhCLIProcess::class.java) {}
         val output = GhCliAuth.checkGhCliAuthenticatedWithCorrectScopes(authStatusProvider)
         return GhCliAuth.getGitHubCredentials(output.get())
     }
