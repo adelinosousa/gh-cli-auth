@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
 plugins {
     `kotlin-dsl`
     alias(libs.plugins.kotlin.jvm)
-    id("com.gradle.plugin-publish") version "1.3.1"
+    alias(libs.plugins.gradle.plugin.publish)
 }
 
 group = "io.github.adelinosousa"
