@@ -2,9 +2,9 @@ package io.github.adelinosousa.gradle.plugins
 
 import org.gradle.api.Plugin
 import org.gradle.api.artifacts.dsl.RepositoryHandler
-import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.initialization.Settings
 import org.gradle.api.logging.Logging
+import org.gradle.kotlin.dsl.extra
 import java.net.URI
 
 internal class GhCliAuthSettingsPlugin : Plugin<Settings> {
@@ -22,6 +22,8 @@ internal class GhCliAuthSettingsPlugin : Plugin<Settings> {
 
         val repoCredentials = Environment.getEnvCredentials(gitEnvTokenName) ?: getGhCliCredentials(settings)
         if (repoCredentials.isValid()) {
+            // Set the token to share with other settings plugins
+            settings.gradle.extra.set(Config.EXTRA_TOKEN_NAME, repoCredentials.token)
             settings.pluginManagement.repositories.addRepositoriesWithDefaults(githubOrg, repoCredentials)
             settings.dependencyResolutionManagement.repositories.addRepositoriesWithDefaults(githubOrg, repoCredentials)
         } else {
