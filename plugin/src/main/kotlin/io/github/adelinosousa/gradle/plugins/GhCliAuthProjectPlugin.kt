@@ -1,11 +1,16 @@
 package io.github.adelinosousa.gradle.plugins
 
+import io.github.adelinosousa.gradle.extensions.GhCliAuthExtension
+import io.github.adelinosousa.gradle.internal.Config
+import io.github.adelinosousa.gradle.internal.Environment
+import io.github.adelinosousa.gradle.internal.GhCliAuth
+import io.github.adelinosousa.gradle.internal.GitHubCLIProcess
+import io.github.adelinosousa.gradle.internal.RepositoryCredentials
 import org.gradle.api.Project
 import org.gradle.api.Plugin
 import org.gradle.api.logging.Logging
-import org.gradle.api.provider.Property
 
-internal class GhCliAuthProjectPlugin : Plugin<Project> {
+public class GhCliAuthProjectPlugin : Plugin<Project> {
     private companion object {
         private val logger = Logging.getLogger(GhCliAuthSettingsPlugin::class.java)
     }
@@ -49,6 +54,3 @@ internal class GhCliAuthProjectPlugin : Plugin<Project> {
     }
 }
 
-public interface GhCliAuthExtension {
-    public val token: Property<String?>
-}

@@ -1,11 +1,11 @@
-package io.github.adelinosousa.gradle.plugins
+package io.github.adelinosousa.gradle.internal
 
-import org.gradle.api.provider.ValueSource
-import org.gradle.api.provider.ValueSourceParameters
-import org.gradle.process.ExecOperations
 import java.io.ByteArrayOutputStream
 import java.io.File
 import javax.inject.Inject
+import org.gradle.api.provider.ValueSource
+import org.gradle.api.provider.ValueSourceParameters
+import org.gradle.process.ExecOperations
 
 internal abstract class GitHubCLIProcess : ValueSource<String, ValueSourceParameters.None> {
 
@@ -42,4 +42,3 @@ internal abstract class GitHubCLIProcess : ValueSource<String, ValueSourceParame
         return "gh"
     }
 }
-

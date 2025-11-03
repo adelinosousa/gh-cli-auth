@@ -1,4 +1,4 @@
-package io.github.adelinosousa.gradle.plugins
+package io.github.adelinosousa.gradle.internal
 
 internal class RepositoryCredentials(
     internal val username: String?,

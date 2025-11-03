@@ -1,4 +1,4 @@
-package io.github.adelinosousa.gradle.plugins
+package io.github.adelinosousa.gradle.internal
 
 internal object Config {
     internal const val GITHUB_ORG: String = "gh.cli.auth.github.org"

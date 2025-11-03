@@ -1,4 +1,4 @@
-package io.github.adelinosousa.gradle.plugins
+package io.github.adelinosousa.gradle.internal
 
 import org.gradle.api.GradleException
 import org.gradle.api.provider.Provider

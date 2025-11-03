@@ -1,5 +1,10 @@
 package io.github.adelinosousa.gradle.plugins
 
+import io.github.adelinosousa.gradle.internal.Config
+import io.github.adelinosousa.gradle.internal.Environment
+import io.github.adelinosousa.gradle.internal.GhCliAuth
+import io.github.adelinosousa.gradle.internal.GitHubCLIProcess
+import io.github.adelinosousa.gradle.internal.RepositoryCredentials
 import org.gradle.api.Plugin
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.initialization.Settings
@@ -7,7 +12,7 @@ import org.gradle.api.logging.Logging
 import org.gradle.kotlin.dsl.extra
 import java.net.URI
 
-internal class GhCliAuthSettingsPlugin : Plugin<Settings> {
+public class GhCliAuthSettingsPlugin : Plugin<Settings> {
     private companion object {
         private val logger = Logging.getLogger(GhCliAuthSettingsPlugin::class.java)
     }

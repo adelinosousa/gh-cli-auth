@@ -1,5 +1,11 @@
 package io.github.adelinosousa.gradle.plugins
 
+import io.github.adelinosousa.gradle.extensions.GhCliAuthExtension
+import io.github.adelinosousa.gradle.internal.Config
+import io.github.adelinosousa.gradle.internal.Environment
+import io.github.adelinosousa.gradle.internal.GhCliAuth
+import io.github.adelinosousa.gradle.internal.GitHubCLIProcess
+import io.github.adelinosousa.gradle.internal.RepositoryCredentials
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkObject

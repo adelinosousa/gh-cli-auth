@@ -1,4 +1,4 @@
-package io.github.adelinosousa.gradle.plugins
+package io.github.adelinosousa.gradle.internal
 
 internal object Environment {
     internal fun getEnv(name: String): String? {
