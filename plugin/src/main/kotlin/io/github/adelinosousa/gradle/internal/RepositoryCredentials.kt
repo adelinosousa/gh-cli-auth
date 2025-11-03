@@ -1,6 +1,6 @@
 package io.github.adelinosousa.gradle.internal
 
-internal class RepositoryCredentials(
+internal data class RepositoryCredentials(
     internal val username: String?,
     internal val token: String?
 ) {
