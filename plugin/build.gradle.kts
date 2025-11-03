@@ -7,7 +7,9 @@ plugins {
 }
 
 group = "io.github.adelinosousa"
-version = System.getenv("GRADLE_PUBLISH_VERSION") ?: project.findProperty("gradle.publish.version") ?: "1.0.1"
+version = System
+    .getenv("GRADLE_PUBLISH_VERSION")
+    ?: requireNotNull(project.property("gradle.publish.version"))
 
 kotlin {
     explicitApi = ExplicitApiMode.Strict
