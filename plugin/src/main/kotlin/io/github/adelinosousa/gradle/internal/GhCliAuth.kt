@@ -1,10 +1,12 @@
 package io.github.adelinosousa.gradle.internal
 
 import org.gradle.api.GradleException
+import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Provider
 
 internal object GhCliAuth {
-    val requiredScopes: Set<String> = setOf("read:packages", "read:org")
+    private val logger = Logging.getLogger(GhCliAuth::class.java)
+    internal val requiredScopes: Set<String> = setOf("read:packages", "read:org")
 
     internal fun checkGhCliAuthenticatedWithCorrectScopes(authStatusProvider: Provider<String>): Provider<String> {
         return authStatusProvider.map { output ->
@@ -33,7 +35,7 @@ internal object GhCliAuth {
                 return RepositoryCredentials(user, token)
             }
         } catch (e: Exception) {
-            println("Failed to get credentials from 'gh' CLI: ${e.message}")
+            logger.error("Failed to get credentials from 'gh' CLI: ${e.message}")
         }
 
         throw GradleException("'gh' CLI is authenticated but failed to extract user or token")
