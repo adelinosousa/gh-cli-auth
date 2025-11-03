@@ -133,13 +133,19 @@ class GhCliAuthSettingsPluginFunctionalTest {
     }
 
     @Test fun `plugin shares token with other settings plugins`() {
+        val tokenName = """gh-cli-auth-token"""
         val expectedToken = "ghp_exampletoken1234567890"
 
         settingsFile.writeText(
             """
             plugins {
                 id('io.github.adelinosousa.gradle.plugins.settings.gh-cli-auth')
-                id('io.github.adelinosousa.gradle.plugins.settings.mock.gh-cli-auth')
+            }
+    
+            // a simple log to verify that the token is accessible from other setting plugins
+            gradle.settingsEvaluated {
+                def ghToken = gradle.ext.get("$tokenName")
+                println("$tokenName: ${'$'}ghToken")
             }
         """.trimIndent()
         )
@@ -160,6 +166,6 @@ class GhCliAuthSettingsPluginFunctionalTest {
             .withEnvironment(mapOf("CUSTOM_ENV_VAR" to expectedToken))
             .build()
 
-        assertTrue(result.output.contains("MockSettingsPlugin applied successfully and found the token: $expectedToken"))
+        assertTrue(result.output.contains("$tokenName: $expectedToken"))
     }
 }

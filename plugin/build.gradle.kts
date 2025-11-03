@@ -43,19 +43,6 @@ gradlePlugin {
                 "Automatically configures access to GitHub Maven Plugins for settings using gh CLI. CI/CD friendly."
             tags.set(listOf("github", "packages", "maven", "repository"))
         }
-        create("ghCliAuthSettingsMock") {
-            id = "io.github.adelinosousa.gradle.plugins.settings.mock.gh-cli-auth"
-            implementationClass = "io.github.adelinosousa.gradle.plugins.MockSettingsPlugin"
-            displayName = "Gradle Mock Settings Plugin"
-            description = "A mock settings plugin to be used in tests."
-            tags.set(listOf("mock", "test"))
-        }
-    }
-}
-
-tasks.withType<PublishToMavenRepository>().configureEach {
-    onlyIf {
-        publication.name != "ghCliAuthSettingsMockPluginMarkerMaven"
     }
 }
 
