@@ -1,76 +1,27 @@
 package io.github.adelinosousa.gradle.plugins
 
-import io.github.adelinosousa.gradle.internal.Config
-import io.github.adelinosousa.gradle.internal.Environment
-import io.github.adelinosousa.gradle.internal.GhCliAuth
-import io.github.adelinosousa.gradle.internal.GhCLIProcess
-import io.github.adelinosousa.gradle.internal.RepositoryCredentials
 import org.gradle.api.Plugin
-import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.initialization.Settings
-import org.gradle.api.logging.Logging
 import org.gradle.kotlin.dsl.extra
-import java.net.URI
 
-public class GhCliAuthSettingsPlugin : Plugin<Settings> {
-    private companion object {
-        private val logger = Logging.getLogger(GhCliAuthSettingsPlugin::class.java)
-    }
-
+public class GhCliAuthSettingsPlugin : GhCliAuthBase(), Plugin<Settings> {
     override fun apply(settings: Settings) {
-        val githubOrg = getGradleProperty(settings, Config.GITHUB_ORG)
-        val gitEnvTokenName = getGradleProperty(settings, Config.ENV_PROPERTY_NAME) ?: "GITHUB_TOKEN"
+        val provider = settings.providers
 
-        if (githubOrg.isNullOrEmpty()) {
-            throw IllegalStateException("GitHub organization not specified. Please set the '${Config.GITHUB_ORG}' in your gradle.properties file.")
+        settings.gradle.extra.set(
+            GH_EXTRA_TOKEN_KEY,
+            provider.credentials.token
+        )
+
+        settings.pluginManagement.repositories.apply {
+            addTrustedRepositoriesIfMissing()
+            addUserConfiguredOrgGhPackagesRepository(provider)
         }
 
-        val repoCredentials = Environment.getEnvCredentials(gitEnvTokenName) ?: getGhCliCredentials(settings)
-        if (repoCredentials.isValid()) {
-            // Set the token to share with other settings plugins
-            settings.gradle.extra.set(Config.EXTRA_TOKEN_NAME, repoCredentials.token)
-            settings.pluginManagement.repositories.addRepositoriesWithDefaults(githubOrg, repoCredentials)
-            @Suppress("UnstableApiUsage")
-            settings.dependencyResolutionManagement.repositories.addRepositoriesWithDefaults(githubOrg, repoCredentials)
-        } else {
-            throw IllegalStateException("Token not found in environment variable '${gitEnvTokenName}' or 'gh' CLI. Unable to configure GitHub Packages repository.")
-        }
-    }
-
-    private fun getGhCliCredentials(settings: Settings): RepositoryCredentials {
-        val authStatusProvider = settings.providers.of(GhCLIProcess::class.java) {}
-        val output = GhCliAuth.checkGhCliAuthenticatedWithCorrectScopes(authStatusProvider)
-        return GhCliAuth.getGitHubCredentials(output.get())
-    }
-
-    private fun getGradleProperty(settings: Settings, propertyName: String): String? {
-        return settings.providers.gradleProperty(propertyName).orNull
-    }
-
-    private fun RepositoryHandler.addRepositoriesWithDefaults(githubOrg: String, repoCredentials: RepositoryCredentials) {
-        if (this.findByName("MavenRepo") == null) {
-            logger.info("Adding Maven Central repository")
-            this.mavenCentral()
-        }
-
-        if (this.findByName("Google") == null) {
-            logger.info("Adding Google repository")
-            this.google()
-        }
-
-        if (this.findByName("Gradle Central Plugin Repository") == null) {
-            logger.info("Adding Gradle Plugin Portal repository")
-            this.gradlePluginPortal()
-        }
-
-        logger.info("Registering Maven GitHub repository for organization: $githubOrg")
-        this.maven {
-            name = "GitHubPackages"
-            url = URI("https://maven.pkg.github.com/$githubOrg/*")
-            credentials {
-                this.username = repoCredentials.username
-                this.password = repoCredentials.token
-            }
+        @Suppress("UnstableApiUsage")
+        settings.dependencyResolutionManagement.repositories.apply {
+            addTrustedRepositoriesIfMissing()
+            addUserConfiguredOrgGhPackagesRepository(provider)
         }
     }
 }

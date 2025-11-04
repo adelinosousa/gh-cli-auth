@@ -1,4 +1,4 @@
-package io.github.adelinosousa.gradle.internal
+package io.github.adelinosousa.gradle.github
 
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -7,7 +7,7 @@ import org.gradle.api.provider.ValueSource
 import org.gradle.api.provider.ValueSourceParameters
 import org.gradle.process.ExecOperations
 
-internal abstract class GhCLIProcess : ValueSource<String, ValueSourceParameters.None> {
+internal abstract class GhCliProcess : ValueSource<String, ValueSourceParameters.None> {
 
     @get:Inject
     internal abstract val execOperations: ExecOperations
