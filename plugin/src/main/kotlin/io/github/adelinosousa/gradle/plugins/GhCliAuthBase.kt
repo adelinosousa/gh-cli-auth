@@ -1,6 +1,6 @@
 package io.github.adelinosousa.gradle.plugins
 
-import io.github.adelinosousa.gradle.github.GhCliProcess
+import io.github.adelinosousa.gradle.github.GhCliAuthProcessor
 import io.github.adelinosousa.gradle.github.GhCliAuthParser
 import io.github.adelinosousa.gradle.github.GhCredentials
 import org.gradle.api.artifacts.dsl.RepositoryHandler
@@ -53,7 +53,7 @@ public abstract class GhCliAuthBase {
                 logger.debug("Falling back to gh CLI for GitHub credentials.")
 
                 val authStatusProvider = this
-                    .of(GhCliProcess::class.java) {}
+                    .of(GhCliAuthProcessor::class.java) {}
 
                 // We collect (i.e., `.get()`) the value before validation to ensure
                 // the final side effects of the provider are executed
