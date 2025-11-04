@@ -79,7 +79,7 @@ public abstract class GhCliAuthBase {
     protected fun RepositoryHandler.addUserConfiguredOrgGhPackagesRepository(providers: ProviderFactory) {
         logger.info("Registering GitHub Packages repo for org: ${providers.githubOrg}")
         maven {
-            name = "GitHubPackages"
+            name = providers.githubOrg
             url = URI("https://maven.pkg.github.com/${providers.githubOrg}/*")
             credentials {
                 username = providers.credentials.username
