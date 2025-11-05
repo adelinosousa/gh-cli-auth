@@ -29,7 +29,7 @@ gradlePlugin {
     website = "https://gh-cli-auth.digibit.uk"
     vcsUrl = "https://github.com/adelinosousa/gh-cli-auth"
     plugins {
-        create("ghCliAuthProject") {
+        register("ghCliAuthProject") {
             id = "io.github.adelinosousa.gradle.plugins.project.gh-cli-auth"
             implementationClass = "io.github.adelinosousa.gradle.plugins.GhCliAuthProjectPlugin"
             displayName = "Gradle GitHub CLI Auth Project Plugin"
@@ -37,7 +37,7 @@ gradlePlugin {
                 "Automatically configures access to GitHub Maven Packages for project using gh CLI. CI/CD friendly."
             tags.set(listOf("github", "packages", "maven", "repository"))
         }
-        create("ghCliAuthSettings") {
+        register("ghCliAuthSettings") {
             id = "io.github.adelinosousa.gradle.plugins.settings.gh-cli-auth"
             implementationClass = "io.github.adelinosousa.gradle.plugins.GhCliAuthSettingsPlugin"
             displayName = "Gradle GitHub CLI Auth Settings Plugin"
@@ -49,8 +49,7 @@ gradlePlugin {
 }
 
 // Add a source set for the functional test suite
-val functionalTestSourceSet = sourceSets.create("functionalTest") {
-}
+val functionalTestSourceSet = sourceSets.create("functionalTest")
 
 configurations["functionalTestImplementation"].extendsFrom(configurations["testImplementation"])
 configurations["functionalTestRuntimeOnly"].extendsFrom(configurations["testRuntimeOnly"])
