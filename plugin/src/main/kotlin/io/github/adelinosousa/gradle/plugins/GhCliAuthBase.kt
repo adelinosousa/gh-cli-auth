@@ -51,13 +51,12 @@ public abstract class GhCliAuthBase {
                 return@getOrPut credentialsFromEnv
             } else {
                 logger.debug("Falling back to gh CLI for GitHub credentials.")
-
-                val authStatusProvider = this
-                    .of(GhCliAuthProcessor::class.java) {}
-
-                // We collect (i.e., `.get()`) the value before validation to ensure
-                // the final side effects of the provider are executed
-                return@getOrPut GhCliAuthParser.parse(authStatusProvider.get())
+                return@getOrPut GhCliAuthProcessor
+                    .create(this)
+                    // We collect (i.e., `.get()`) the value before validation to ensure
+                    // the final side effects of the provider are executed
+                    .get()
+                    .run(GhCliAuthParser::parse)
             }
         }
 
@@ -77,7 +76,7 @@ public abstract class GhCliAuthBase {
     }
 
     protected fun RepositoryHandler.addUserConfiguredOrgGhPackagesRepository(providers: ProviderFactory) {
-        logger.info("Registering GitHub Packages repo for org: ${providers.githubOrg}")
+        logger.info("Registering GitHub Packages maven repository for organization: ${providers.githubOrg}")
         maven {
             name = providers.githubOrg
             url = URI("https://maven.pkg.github.com/${providers.githubOrg}/*")

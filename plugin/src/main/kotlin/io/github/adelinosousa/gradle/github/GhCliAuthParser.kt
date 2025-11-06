@@ -1,9 +1,10 @@
 package io.github.adelinosousa.gradle.github
 
+import io.github.adelinosousa.gradle.plugins.GhCliAuthBase.Companion.GH_CLI_EXTENSION_NAME
 import org.gradle.api.logging.Logging
 
 internal object GhCliAuthParser {
-    private val logger = Logging.getLogger(GhCliAuthParser::class.java)
+    private val logger = Logging.getLogger(GH_CLI_EXTENSION_NAME)
     private val REQUIRED_SCOPES: Set<String> = setOf("read:packages", "read:org")
 
     internal fun parse(output: String): GhCredentials = this
