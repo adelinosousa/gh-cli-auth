@@ -15,8 +15,7 @@ public abstract class GhCliAuthBase {
         const val GH_CLI_EXTENSION_NAME: String = "ghCliAuth"
         const val GH_ORG_SETTER_PROPERTY: String = "gh.cli.auth.github.org"
         const val GH_ENV_KEY_SETTER_PROPERTY: String = "gh.cli.auth.env.name"
-        // FIXME: This needs to match the same convention (dots vs dashes) + provide a way to override the preferred extra key name
-        const val GH_EXTRA_TOKEN_KEY: String = "gh-cli-auth-token"
+        const val GH_EXTRA_TOKEN_KEY: String = "gh.cli.auth.token"
 
         const val DEFAULT_TOKEN_ENV_KEY: String = "GITHUB_TOKEN"
         const val DEFAULT_TOKEN_USERNAME: String = ""

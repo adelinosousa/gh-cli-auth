@@ -49,8 +49,8 @@ This plugin is split into two: one for `settings` and the other for `project`. D
    If you need to consume the token in your own settings plugin, you can access it via gradle extra properties:
 
    ```shell
-   if (settings.gradle.extra.has("gh-cli-auth-token")) {
-      val ghToken = settings.gradle.extra["gh-cli-auth-token"] as String
+   if (settings.gradle.extra.has("gh.cli.auth.token")) {
+      val ghToken = settings.gradle.extra["gh.cli.auth.token"] as String
    }
    ```
 

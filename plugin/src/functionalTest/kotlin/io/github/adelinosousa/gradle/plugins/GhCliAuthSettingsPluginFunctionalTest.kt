@@ -20,7 +20,7 @@ class GhCliAuthSettingsPluginFunctionalTest : GhCliAuthFunctionalTestSetup() {
 
         output
             .shouldContain("Registering GitHub Packages maven repository for organization: $GIVEN_ORG_VALUE")
-            .shouldContain("gh-cli-auth-token: $randomTokenValue")
+            .shouldContain("gh.cli.auth.token: $randomTokenValue")
     }
 
     @Test
@@ -38,7 +38,7 @@ class GhCliAuthSettingsPluginFunctionalTest : GhCliAuthFunctionalTestSetup() {
 
         output
             .shouldContain("Attempting to use GitHub credentials from environment variable: $DEFAULT_TOKEN_ENV_KEY")
-            .shouldContain("gh-cli-auth-token: $tokenFromDefaultEnv")
+            .shouldContain("gh.cli.auth.token: $tokenFromDefaultEnv")
     }
 
     @Test
@@ -59,7 +59,7 @@ class GhCliAuthSettingsPluginFunctionalTest : GhCliAuthFunctionalTestSetup() {
 
         output
             .shouldContain("Attempting to use GitHub credentials from environment variable: $customKey")
-            .shouldContain("gh-cli-auth-token: $customToken")
+            .shouldContain("gh.cli.auth.token: $customToken")
     }
 
     @Test
@@ -73,8 +73,8 @@ class GhCliAuthSettingsPluginFunctionalTest : GhCliAuthFunctionalTestSetup() {
                 writeSettings(
                     afterEvalExtra = """
                         // Simulate another settings plugin reading the shared token
-                        val shared = gradle.extra.get("gh-cli-auth-token")
-                        println("gh-cli-auth-token (read by another settings plugin): ${'$'}shared")
+                        val shared = gradle.extra.get("gh.cli.auth.token")
+                        println("gh.cli.auth.token (read by another settings plugin): ${'$'}shared")
                     """.trimIndent()
                 )
             }
@@ -84,8 +84,8 @@ class GhCliAuthSettingsPluginFunctionalTest : GhCliAuthFunctionalTestSetup() {
             .output
 
         output
-            .shouldContain("gh-cli-auth-token: $expectedToken")
-            .shouldContain("gh-cli-auth-token (read by another settings plugin): $expectedToken")
+            .shouldContain("gh.cli.auth.token: $expectedToken")
+            .shouldContain("gh.cli.auth.token (read by another settings plugin): $expectedToken")
     }
 
     @Test
@@ -215,7 +215,7 @@ class GhCliAuthSettingsPluginFunctionalTest : GhCliAuthFunctionalTestSetup() {
 
             // Verify that the plugin shared the token via gradle.extra and allow custom assertions
             afterSettingsEvaluate {
-                val tokenName = "gh-cli-auth-token"
+                val tokenName = "gh.cli.auth.token"
                 val ghToken = gradle.extra.get(tokenName)
                 println("${'$'}tokenName: ${'$'}ghToken")
                 $afterEvalExtra
