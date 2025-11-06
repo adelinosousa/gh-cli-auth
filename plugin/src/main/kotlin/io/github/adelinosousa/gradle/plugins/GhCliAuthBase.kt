@@ -32,7 +32,7 @@ public abstract class GhCliAuthBase {
             this
                 .gradleProperty(GH_ORG_SETTER_PROPERTY)
                 .orNull
-                .let { requireNotNull(it) { "Please set ${GH_ORG_SETTER_PROPERTY}' in gradle.properties." } }
+                .let { requireNotNull(it) { "Please set '${GH_ORG_SETTER_PROPERTY}' in gradle.properties." } }
                 .also { require(it.isNotBlank()) { "Property '${GH_ORG_SETTER_PROPERTY}' MUST not be blank." } }
         }
 
