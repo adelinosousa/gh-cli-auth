@@ -12,6 +12,8 @@ version = System
 
 dependencies {
     testImplementation(libs.mockk)
+    testImplementation(libs.kotest.extensions.jvm)
+    testImplementation(libs.kotest.assertions.core)
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
@@ -27,6 +29,7 @@ testing.suites.register<JvmTestSuite>("functionalTest").configure {
     configurations["functionalTestImplementation"].extendsFrom(configurations["testImplementation"])
     configurations["functionalTestRuntimeOnly"].extendsFrom(configurations["testRuntimeOnly"])
     tasks.named<Task>("check") { dependsOn(this@configure) }
+    kotlin.target.compilations { named { it == this@configure.name }.configureEach { associateWith(getByName("main")) } }
 }
 
 /**
