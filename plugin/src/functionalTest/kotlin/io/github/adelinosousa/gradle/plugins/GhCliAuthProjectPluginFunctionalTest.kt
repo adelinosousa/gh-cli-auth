@@ -80,15 +80,20 @@ class GhCliAuthProjectPluginFunctionalTest : GhCliAuthFunctionalTestSetup() {
     @Test
     fun `should fallback to gh CLI auth when environment variable is not found`() {
         val badEnvKey = "NON_EXISTENT_ENV_KEY-${System.currentTimeMillis()}"
+        val badPropertyKey = "non.existent.property.key.${System.currentTimeMillis()}"
 
         propertiesFile
-            .appendText("\ngh.cli.auth.env.name=$badEnvKey")
+            .appendText(
+                "\n" +
+                    "gh.cli.auth.env.name=$badEnvKey\n" +
+                    "gh.cli.auth.property.name=$badPropertyKey\n"
+            )
 
         project
             .withArguments("printGhCliAuthToken", "--debug")
             .build()
             .output
-            .shouldContain("Falling back to gh CLI for GitHub credentials.")
+            .shouldContain("Attempting to use GitHub credentials from gh CLI.")
             .shouldContain("GhCliAuth Extension Token: ${GhCliAuthFake.DEFAULT_TOKEN_VALUE}")
     }
 

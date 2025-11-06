@@ -1,6 +1,9 @@
 package io.github.adelinosousa.gradle.plugins
 
 import io.github.adelinosousa.gradle.plugins.GhCliAuthBase.Companion.DEFAULT_TOKEN_ENV_KEY
+import io.github.adelinosousa.gradle.plugins.GhCliAuthBase.Companion.DEFAULT_TOKEN_PROPERTY_KEY
+import io.github.adelinosousa.gradle.plugins.GhCliAuthBase.Companion.GH_ENV_KEY_SETTER_PROPERTY
+import io.github.adelinosousa.gradle.plugins.GhCliAuthBase.Companion.GH_PROPERTY_KEY_SETTER_PROPERTY
 import io.github.adelinosousa.gradle.plugins.support.GhCliAuthFake
 import io.github.adelinosousa.gradle.plugins.support.GhCliAuthFunctionalTestSetup
 import io.kotest.matchers.string.shouldContain
@@ -91,10 +94,16 @@ class GhCliAuthSettingsPluginFunctionalTest : GhCliAuthFunctionalTestSetup() {
     @Test
     fun `should fallback to gh CLI auth when environment variable is not found`() {
         val missingKey = "NON_EXISTENT_ENV_${System.currentTimeMillis()}"
+        val missingPropKey = "non.existent.prop.${System.currentTimeMillis()}"
 
         val output = project
             .apply {
-                propertiesFile.appendText("\ngh.cli.auth.env.name=$missingKey\n")
+                propertiesFile
+                    .appendText(
+                        "\n" +
+                            "$GH_ENV_KEY_SETTER_PROPERTY=$missingKey\n" +
+                            "$GH_PROPERTY_KEY_SETTER_PROPERTY=$missingPropKey\n"
+                    )
                 writeSettings(
                     afterEvalExtra = """
                         // print maven repo details for verification
@@ -115,7 +124,7 @@ class GhCliAuthSettingsPluginFunctionalTest : GhCliAuthFunctionalTestSetup() {
             .output
 
         output
-            .shouldContain("Falling back to gh CLI for GitHub credentials.")
+            .shouldContain("Attempting to use GitHub credentials from gh CLI.")
             .shouldContain("Maven Repo URL: https://maven.pkg.github.com/$GIVEN_ORG_VALUE/*")
             .shouldContain("Maven Repo Username: ${GhCliAuthFake.DEFAULT_USER_VALUE}")
             .shouldContain("Maven Repo Password: ${GhCliAuthFake.DEFAULT_TOKEN_VALUE}")
@@ -169,6 +178,58 @@ class GhCliAuthSettingsPluginFunctionalTest : GhCliAuthFunctionalTestSetup() {
         output
             .shouldContain("Adding Gradle Plugin Portal repository")
             .shouldContain("Registering GitHub Packages maven repository for organization: $GIVEN_ORG_VALUE")
+    }
+
+    @Test
+    fun `should use token from default gradle property when environment variable is not set`() {
+        val expectedToken = "ghp_property_default_${System.currentTimeMillis()}"
+        val missingEnvKey = "NON_EXISTENT_ENV_${System.currentTimeMillis()}"
+
+        val output = project
+            .apply {
+                propertiesFile
+                    .apply { appendText("\n") }
+                    .appendText(
+                        """
+                        $GH_ENV_KEY_SETTER_PROPERTY=$missingEnvKey
+                        """.trimIndent()
+                    )
+                writeSettings()
+            }
+            .withArguments("help", "-P${DEFAULT_TOKEN_PROPERTY_KEY}=$expectedToken", "--debug")
+            .build()
+            .output
+
+        output
+            .shouldContain("Attempting to use GitHub credentials from gradle property: $DEFAULT_TOKEN_PROPERTY_KEY")
+            .shouldContain("gh.cli.auth.token: $expectedToken")
+    }
+
+    @Test
+    fun `should allow setting a custom gradle property key for the token`() {
+        val customPropKey = "my.custom.token.prop"
+        val expectedToken = "ghp_property_custom_${System.currentTimeMillis()}"
+        val missingEnvKey = "NON_EXISTENT_ENV_${System.currentTimeMillis()}"
+
+        val output = project
+            .apply {
+                propertiesFile
+                    .apply { appendText("\n") }
+                    .appendText(
+                        """
+                        $GH_ENV_KEY_SETTER_PROPERTY=$missingEnvKey
+                        $GH_PROPERTY_KEY_SETTER_PROPERTY=$customPropKey
+                        """.trimIndent()
+                    )
+                writeSettings()
+            }
+            .withArguments("help", "-P$customPropKey=$expectedToken", "--debug")
+            .build()
+            .output
+
+        output
+            .shouldContain("Attempting to use GitHub credentials from gradle property: $customPropKey")
+            .shouldContain("gh.cli.auth.token: $expectedToken")
     }
 
     private fun writeSettings(

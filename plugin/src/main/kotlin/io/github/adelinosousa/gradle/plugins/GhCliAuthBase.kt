@@ -15,9 +15,11 @@ public abstract class GhCliAuthBase {
         const val GH_CLI_EXTENSION_NAME: String = "ghCliAuth"
         const val GH_ORG_SETTER_PROPERTY: String = "gh.cli.auth.github.org"
         const val GH_ENV_KEY_SETTER_PROPERTY: String = "gh.cli.auth.env.name"
+        const val GH_PROPERTY_KEY_SETTER_PROPERTY: String = "gh.cli.auth.property.name"
         const val GH_EXTRA_TOKEN_KEY: String = "gh.cli.auth.token"
 
         const val DEFAULT_TOKEN_ENV_KEY: String = "GITHUB_TOKEN"
+        const val DEFAULT_TOKEN_PROPERTY_KEY: String = "gpr.token"
         const val DEFAULT_TOKEN_USERNAME: String = ""
     }
 
@@ -49,13 +51,27 @@ public abstract class GhCliAuthBase {
                 logger.debug("Attempting to use GitHub credentials from environment variable: $tokenEnvKey")
                 return@getOrPut credentialsFromEnv
             } else {
-                logger.debug("Falling back to gh CLI for GitHub credentials.")
-                return@getOrPut GhCliAuthProcessor
-                    .create(this)
-                    // We collect (i.e., `.get()`) the value before validation to ensure
-                    // the final side effects of the provider are executed
-                    .get()
-                    .run(GhCliAuthParser::parse)
+                val tokenPropertyKey = this
+                    .gradleProperty(GH_PROPERTY_KEY_SETTER_PROPERTY)
+                    .orNull ?: DEFAULT_TOKEN_PROPERTY_KEY
+
+                val credentialsFromProperty = this
+                    .gradleProperty(tokenPropertyKey)
+                    .orNull
+                    .let { token -> if (!token.isNullOrBlank()) GhCredentials(DEFAULT_TOKEN_USERNAME, token) else null }
+
+                if (credentialsFromProperty != null) {
+                    logger.debug("Attempting to use GitHub credentials from gradle property: $tokenPropertyKey")
+                    return@getOrPut credentialsFromProperty
+                } else {
+                    logger.debug("Attempting to use GitHub credentials from gh CLI.")
+                    return@getOrPut GhCliAuthProcessor
+                        .create(this)
+                        // We collect (i.e., `.get()`) the value before validation to ensure
+                        // the final side effects of the provider are executed
+                        .get()
+                        .run(GhCliAuthParser::parse)
+                }
             }
         }
 
