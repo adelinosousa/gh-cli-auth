@@ -26,6 +26,6 @@ jobs:
 
       - name: Build
         shell: bash
-        run: ./gradlew build
+        run: ./gradlew build --info
         env:
           GH_TOKEN: ${{ secrets.TEST_PAT }}
