@@ -76,14 +76,6 @@ public abstract class GhCliAuthBase {
         }
 
     protected fun RepositoryHandler.addTrustedRepositoriesIfMissing() {
-        if (this.findByName("MavenRepo") == null) {
-            logger.info("Adding Maven Central repository")
-            this.mavenCentral()
-        }
-        if (this.findByName("Google") == null) {
-            logger.info("Adding Google repository")
-            this.google()
-        }
         if (this.findByName("Gradle Central Plugin Repository") == null) {
             logger.info("Adding Gradle Plugin Portal repository")
             this.gradlePluginPortal()
