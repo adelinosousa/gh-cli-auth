@@ -131,17 +131,11 @@ class GhCliAuthSettingsPluginFunctionalTest : GhCliAuthFunctionalTestSetup() {
     }
 
     @Test
-    fun `should configure trusted repositories for pluginManagement`() {
-        // PM is missing Google; DRM already has all three, so only PM should be updated
+    fun `should configure gradle plugin portal repository for pluginManagement`() {
+        // PM is missing Gradle Plugin Portal; PM only has Google repository
         writeSettings(
             pmReposBlock = """
-                gradlePluginPortal()
-                mavenCentral()
-            """.trimIndent(),
-            drmReposBlock = """
-                gradlePluginPortal()
                 google()
-                mavenCentral()
             """.trimIndent()
         )
 
@@ -151,21 +145,15 @@ class GhCliAuthSettingsPluginFunctionalTest : GhCliAuthFunctionalTestSetup() {
             .output
 
         output
-            .shouldContain("Adding Google repository")
+            .shouldContain("Adding Gradle Plugin Portal repository")
             .shouldContain("Registering GitHub Packages maven repository for organization: $GIVEN_ORG_VALUE")
     }
 
     @Test
-    fun `should configure trusted repositories for dependencyResolutionManagement`() {
-        // DRM is missing Gradle Plugin Portal; PM already has all three
+    fun `should configure gradle plugin portal repository for dependencyResolutionManagement`() {
+        // DRM is missing Gradle Plugin Portal; DRM only has Maven Central repository
         writeSettings(
-            pmReposBlock = """
-                gradlePluginPortal()
-                google()
-                mavenCentral()
-            """.trimIndent(),
             drmReposBlock = """
-                google()
                 mavenCentral()
             """.trimIndent()
         )
