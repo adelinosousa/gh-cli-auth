@@ -5,7 +5,8 @@ import org.gradle.api.logging.Logging
 
 internal object GhCliAuthParser {
     private val logger = Logging.getLogger(GH_CLI_EXTENSION_NAME)
-    private val REQUIRED_SCOPES: Set<String> = setOf("read:packages", "read:org")
+    private val REQUIRED_RESOURCES: Set<String> = setOf("packages", "org")
+    private val REQUIRED_SCOPES: Set<String> = setOf("read", "write", "admin")
 
     internal fun parse(output: String): GhCredentials = this
         .validate(output)
@@ -40,8 +41,17 @@ internal object GhCliAuthParser {
             ?.map { it.replace("'", "").trim() }
             ?: emptyList()
 
-        check(scopes.containsAll(REQUIRED_SCOPES)) {
-            "GitHub CLI token is missing required scopes. Required: $REQUIRED_SCOPES, Found: $scopes"
+        val missingResources = REQUIRED_RESOURCES.filterNot { isScopeSatisfied(it, scopes) }
+
+        check(missingResources.isEmpty()) {
+            val expected = missingResources.flatMap { resource -> REQUIRED_SCOPES.map { scope -> "$scope:$resource" } }
+            "GitHub CLI token is missing required scopes. Required: $expected, Found: $scopes"
         }
     }
+
+    private fun isScopeSatisfied(resource: String, availableScopes: List<String>): Boolean =
+        availableScopes.any { scope ->
+            val parts = scope.split(":", limit = 2)
+            parts.size == 2 && parts[1] == resource && parts[0] in REQUIRED_SCOPES
+        }
 }
