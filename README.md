@@ -58,7 +58,7 @@ You can use **either** plugin—or **both** together.
 
 ```kotlin
 plugins {
-    id("io.github.adelinosousa.gradle.plugins.settings.gh-cli-auth") version "2.0.0"
+    id("io.github.adelinosousa.gradle.plugins.settings.gh-cli-auth") version "<latest>"
 }
 ```
 
@@ -66,14 +66,14 @@ plugins {
 
 ```groovy
 plugins {
-    id 'io.github.adelinosousa.gradle.plugins.settings.gh-cli-auth' version '2.0.0'
+    id 'io.github.adelinosousa.gradle.plugins.settings.gh-cli-auth' version '<latest>'
 }
 ```
 
 With the settings plugin applied, your build will have:
 
 - **GitHub Packages** repo for your org in both `pluginManagement` and `dependencyResolutionManagement`.
-- **Default** repos added if missing: Gradle Plugin Portal, Google, Maven Central.
+- **Default** repos added if missing: Gradle Plugin Portal.
 - A shared token available at `gradle.extra["gh.cli.auth.token"]`.
 
 ### B) Project plugin (per project)
@@ -82,7 +82,7 @@ With the settings plugin applied, your build will have:
 
 ```kotlin
 plugins {
-    id("io.github.adelinosousa.gradle.plugins.project.gh-cli-auth") version "2.0.0"
+    id("io.github.adelinosousa.gradle.plugins.project.gh-cli-auth") version "<latest>"
 }
 ```
 
@@ -90,7 +90,7 @@ plugins {
 
 ```groovy
 plugins {
-    id 'io.github.adelinosousa.gradle.plugins.project.gh-cli-auth' version '2.0.0'
+    id 'io.github.adelinosousa.gradle.plugins.project.gh-cli-auth' version '<latest>'
 }
 ```
 
