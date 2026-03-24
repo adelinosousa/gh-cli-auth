@@ -125,4 +125,46 @@ class GhCliAuthParserTest {
         creds.username shouldBe "someone"
         creds.token shouldBe "ghp_ok"
     }
+
+    @Test
+    fun `parse accepts write scopes as satisfying read requirements`() {
+        val output = sampleOutput(
+            user = "writer",
+            token = "ghp_write_token",
+            scopes = "'write:packages', 'write:org'"
+        )
+
+        val creds = GhCliAuthParser.parse(output)
+
+        creds.username shouldBe "writer"
+        creds.token shouldBe "ghp_write_token"
+    }
+
+    @Test
+    fun `parse accepts admin scopes as satisfying read requirements`() {
+        val output = sampleOutput(
+            user = "admin",
+            token = "ghp_admin_token",
+            scopes = "'admin:packages', 'admin:org'"
+        )
+
+        val creds = GhCliAuthParser.parse(output)
+
+        creds.username shouldBe "admin"
+        creds.token shouldBe "ghp_admin_token"
+    }
+
+    @Test
+    fun `parse accepts mixed scope levels`() {
+        val output = sampleOutput(
+            user = "mixed",
+            token = "ghp_mixed_token",
+            scopes = "'write:packages', 'admin:org', 'repo'"
+        )
+
+        val creds = GhCliAuthParser.parse(output)
+
+        creds.username shouldBe "mixed"
+        creds.token shouldBe "ghp_mixed_token"
+    }
 }
