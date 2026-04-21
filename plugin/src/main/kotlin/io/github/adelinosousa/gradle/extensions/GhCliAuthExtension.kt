@@ -9,5 +9,5 @@ public interface GhCliAuthExtension {
     /**
      * The GitHub token to use for authentication.
      */
-    public val token: Property<String?>
+    public val token: Property<String>
 }
