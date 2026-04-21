@@ -15,8 +15,14 @@ jobs:
     timeout-minutes: 5
     permissions:
       contents: read
+      security-events: write
     steps:
       - uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: java-kotlin
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -32,3 +38,6 @@ jobs:
         run: ./gradlew build --info
         env:
           GH_TOKEN: ${{ secrets.TEST_PAT }}
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
