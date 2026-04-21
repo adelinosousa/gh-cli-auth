@@ -30,6 +30,7 @@ jobs:
         shell: bash
         env:
           VERSION: ${{ steps.version.outputs.version }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           if gh release view "v${VERSION}" > /dev/null 2>&1; then
             echo "Version v${VERSION} already released, skipping."
