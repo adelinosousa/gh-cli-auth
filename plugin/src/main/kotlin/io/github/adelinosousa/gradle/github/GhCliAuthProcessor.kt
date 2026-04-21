@@ -54,6 +54,12 @@ internal abstract class GhCliAuthProcessor : ValueSource<String, ValueSourcePara
         val customGhBinaryPath = System.getProperty(GH_CLI_BINARY_PATH)
 
         if (customGhBinaryPath != null) {
+            val binaryFile = File(customGhBinaryPath)
+            require(binaryFile.exists()) { "Custom gh binary path does not exist: $customGhBinaryPath" }
+            val binaryName = binaryFile.nameWithoutExtension.lowercase()
+            if (binaryName != "gh") {
+                logger.warn("Custom gh binary path does not appear to be a 'gh' binary: $customGhBinaryPath")
+            }
             logger.debug("Using custom gh binary path from system property: $customGhBinaryPath")
             return customGhBinaryPath
         } else {

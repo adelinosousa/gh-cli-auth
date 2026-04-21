@@ -7,6 +7,7 @@ import io.kotest.matchers.string.shouldContain
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
+import java.io.File
 import java.io.OutputStream
 import org.gradle.api.Action
 import org.gradle.process.ExecOperations
@@ -15,9 +16,13 @@ import org.gradle.process.ExecSpec
 
 import io.mockk.verify
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.io.TempDir
 import kotlin.test.Test
 
 class GhCliAuthProcessorTest {
+    @field:TempDir
+    lateinit var tempDir: File
+
     private val originalOs = System.getProperty("os.name")
     private val originalGhPath = System.getProperty(GH_CLI_BINARY_PATH)
 
@@ -49,15 +54,42 @@ class GhCliAuthProcessorTest {
     @Test
     fun `respects custom GH_CLI_BINARY_PATH`() {
         System.setProperty("os.name", "Linux")
-        val custom = "/tmp/custom/gh"
-        System.setProperty(GH_CLI_BINARY_PATH, custom)
+        val custom = File(tempDir, "gh").apply { createNewFile() }
+        System.setProperty(GH_CLI_BINARY_PATH, custom.absolutePath)
 
         val captured = mutableListOf<Any?>()
         val execOps = mockExec("ok", captured)
         val processor = processorWith(execOps)
 
         processor.obtain() shouldBe "ok"
-        captured.first() shouldBe custom
+        captured.first() shouldBe custom.absolutePath
+    }
+
+    @Test
+    fun `fails when custom GH_CLI_BINARY_PATH does not exist`() {
+        System.setProperty("os.name", "Linux")
+        val nonExistent = File(tempDir, "does-not-exist").absolutePath
+        System.setProperty(GH_CLI_BINARY_PATH, nonExistent)
+
+        val execOps = mockExec("ok")
+        val processor = processorWith(execOps)
+
+        val ex = shouldThrow<IllegalStateException> { processor.obtain() }
+        ex.message.shouldContain("Custom gh binary path does not exist:")
+    }
+
+    @Test
+    fun `warns when custom GH_CLI_BINARY_PATH does not look like gh`() {
+        System.setProperty("os.name", "Linux")
+        val notGh = File(tempDir, "not-gh-binary").apply { createNewFile() }
+        System.setProperty(GH_CLI_BINARY_PATH, notGh.absolutePath)
+
+        val captured = mutableListOf<Any?>()
+        val execOps = mockExec("ok", captured)
+        val processor = processorWith(execOps)
+
+        processor.obtain() shouldBe "ok"
+        captured.first() shouldBe notGh.absolutePath
     }
 
     @Test
