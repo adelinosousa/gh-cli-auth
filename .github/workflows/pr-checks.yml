@@ -10,9 +10,32 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  pr-checks:
+  build:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: "temurin"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build
+        shell: bash
+        run: ./gradlew build --info
+        env:
+          GH_TOKEN: ${{ secrets.TEST_PAT }}
+
+  code-scanning:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
     permissions:
       contents: read
       security-events: write
@@ -27,15 +50,15 @@ jobs:
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
-          java-version: '21'
-          distribution: 'temurin'
+          java-version: "21"
+          distribution: "temurin"
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
       - name: Build
         shell: bash
-        run: ./gradlew build --info
+        run: ./gradlew build -x test -x functionalTest
         env:
           GH_TOKEN: ${{ secrets.TEST_PAT }}
 
