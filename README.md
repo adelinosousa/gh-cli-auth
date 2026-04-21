@@ -108,7 +108,7 @@ Add this to your **`gradle.properties`** (root of the build):
 
 ```properties
 gh.cli.auth.github.org=<your-organization>
-````
+```
 
 ### 2) Choose how you want to provide credentials
 
