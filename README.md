@@ -198,6 +198,10 @@ If the token lacks these scopes, the plugin will fail with an error message prom
 - **Using `RepositoriesMode.FAIL_ON_PROJECT_REPOS`**  
   Prefer the **settings** plugin (the project plugin adds repositories at the project level and may conflict with this mode).
 
+## Requirements
+
+- **Gradle 8.11** or newer.
+
 ## Limitations
 
 - Only **Maven** repositories are configured.
