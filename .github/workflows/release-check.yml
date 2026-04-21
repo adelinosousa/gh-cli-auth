@@ -15,7 +15,7 @@ jobs:
       version: ${{ steps.version.outputs.version }}
       should-release: ${{ steps.check.outputs.should-release }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Read version from gradle.properties
         id: version
