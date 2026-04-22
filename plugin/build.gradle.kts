@@ -70,5 +70,12 @@ gradlePlugin {
             description = "Automatically configures access to GitHub Maven Plugins for settings using gh CLI. CI/CD friendly."
             tags.set(listOf("github", "packages", "maven", "repository"))
         }
+        register("ghCliAuthToolchain") {
+            id = "io.github.adelinosousa.gradle.plugins.toolchain.gh-cli-auth"
+            implementationClass = "io.github.adelinosousa.gradle.plugins.GhCliAuthToolchainPlugin"
+            displayName = "Gradle GitHub CLI Auth Toolchain Plugin"
+            description = "Installs a Gradle init script for GitHub Packages authentication via gh CLI"
+            tags.set(listOf("github", "packages", "maven", "repository", "toolchain"))
+        }
     }
 }

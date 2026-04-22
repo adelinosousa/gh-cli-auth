@@ -1,6 +1,6 @@
 package io.github.adelinosousa.gradle.github
 
-import io.github.adelinosousa.gradle.github.GhCliAuthProcessor.Companion.GH_CLI_BINARY_PATH
+import io.github.adelinosousa.gradle.github.GhBinaryResolver.GH_CLI_BINARY_PATH
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
