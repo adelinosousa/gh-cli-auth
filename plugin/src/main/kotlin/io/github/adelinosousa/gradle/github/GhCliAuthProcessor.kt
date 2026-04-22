@@ -2,7 +2,6 @@ package io.github.adelinosousa.gradle.github
 
 import io.github.adelinosousa.gradle.plugins.GhCliAuthBase.Companion.GH_CLI_EXTENSION_NAME
 import java.io.ByteArrayOutputStream
-import java.io.File
 import javax.inject.Inject
 import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Provider
@@ -14,12 +13,6 @@ import org.gradle.process.ExecOperations
 internal abstract class GhCliAuthProcessor : ValueSource<String, ValueSourceParameters.None> {
     companion object {
         private val logger = Logging.getLogger(GH_CLI_EXTENSION_NAME)
-
-        /**
-         * System property that can be used to override the path to the `gh` binary.
-         * This skips the default detection logic in place which can be incorrect in some environments.
-         */
-        internal const val GH_CLI_BINARY_PATH: String = "gh.cli.binary.path"
 
         @JvmStatic
         internal fun create(factory: ProviderFactory): Provider<String> =
@@ -34,7 +27,7 @@ internal abstract class GhCliAuthProcessor : ValueSource<String, ValueSourcePara
 
         execOperations
             .exec {
-                commandLine(dynamicGhBin(), "auth", "status", "--show-token")
+                commandLine(GhBinaryResolver.resolve(), "auth", "status", "--show-token")
                 standardOutput = outputStream
                 isIgnoreExitValue = true
             }
@@ -48,35 +41,5 @@ internal abstract class GhCliAuthProcessor : ValueSource<String, ValueSourcePara
                 "Please install it before using this plugin, more information visit: https://gh-cli-auth.digibit.uk.",
             e
         )
-    }
-
-    private fun dynamicGhBin(): String {
-        val customGhBinaryPath = System.getProperty(GH_CLI_BINARY_PATH)
-
-        if (customGhBinaryPath != null) {
-            val binaryFile = File(customGhBinaryPath)
-            require(binaryFile.exists()) { "Custom gh binary path does not exist: $customGhBinaryPath" }
-            val binaryName = binaryFile.nameWithoutExtension.lowercase()
-            if (binaryName != "gh") {
-                logger.warn("Custom gh binary path does not appear to be a 'gh' binary: $customGhBinaryPath")
-            }
-            logger.debug("Using custom gh binary path from system property: $customGhBinaryPath")
-            return customGhBinaryPath
-        } else {
-            val osName = System.getProperty("os.name").lowercase()
-            logger.debug("Detecting gh binary for OS: $osName")
-            return when {
-                "mac" in osName -> {
-                    // NOTE: In theory, this shouldn't be needed if the user has set up their PATH correctly.
-                    listOf(
-                        "/opt/homebrew/bin/gh",  // Apple Silicon
-                        "/usr/local/bin/gh",     // Intel
-                        "/usr/bin/gh"            // System install
-                    ).firstOrNull { File(it).exists() } ?: "gh"
-                }
-                "windows" in osName -> "gh.exe"
-                else -> "gh"
-            }
-        }
     }
 }
