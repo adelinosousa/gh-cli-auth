@@ -132,7 +132,7 @@ Then run the install task once:
 
 This writes an init script to `~/.gradle/init.d/gh-cli-auth.init.gradle.kts` that:
 - Runs `gh auth token` at settings time using Gradle's `providers.exec` (configuration cache compatible).
-- Registers your GitHub Packages Maven repository in `pluginManagement.repositories` with the resolved token.
+- Registers your GitHub Packages Maven repository in **both** `pluginManagement.repositories` and `dependencyResolutionManagement.repositories`, so private plugins **and** private libraries (e.g. shared version catalogs / BOMs) resolve.
 - Applies globally to every Gradle build on the machine.
 
 To remove the init script:
@@ -143,6 +143,19 @@ To remove the init script:
 
 > [!NOTE]
 > The toolchain plugin is standalone — it does not require the settings or project plugin. It only needs `gh.cli.auth.github.org` set in `gradle.properties`.
+
+> [!IMPORTANT]
+> **To consume private libraries via the init script's `dependencyResolutionManagement` entry, opt in by setting `RepositoriesMode.PREFER_SETTINGS` (or `FAIL_ON_PROJECT_REPOS`) in your build's `settings.gradle.kts`:**
+>
+> ```kotlin
+> // settings.gradle.kts
+> @Suppress("UnstableApiUsage")
+> dependencyResolutionManagement {
+>     repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+> }
+> ```
+>
+> Without this, Gradle's default `PREFER_PROJECT` mode lets any project-level `repositories {}` block override the init script's DRM entry, and the GitHub Packages repo is silently ignored.
 
 ## Usage
 

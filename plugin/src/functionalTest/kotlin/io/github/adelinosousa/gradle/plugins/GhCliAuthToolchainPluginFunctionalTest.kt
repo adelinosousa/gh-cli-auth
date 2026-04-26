@@ -160,6 +160,20 @@ class GhCliAuthToolchainPluginFunctionalTest : GhCliAuthFunctionalTestSetup() {
     }
 
     @Test
+    fun `should configure dependencyResolutionManagement repositories in the generated init script`() {
+        val gradleHome = fakeGradleUserHome()
+        writeBuildWithToolchainPlugin(gradleHome)
+
+        project
+            .withArguments("ghCliAuthInstall")
+            .build()
+
+        val content = initScriptFile(gradleHome).readText()
+        content.shouldContain("dependencyResolutionManagement")
+        content.shouldContain("https://maven.pkg.github.com/$GIVEN_ORG_VALUE/*")
+    }
+
+    @Test
     fun `should remove init script when it exists`() {
         val gradleHome = fakeGradleUserHome()
         writeBuildWithToolchainPlugin(gradleHome)
