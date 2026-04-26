@@ -58,6 +58,19 @@ public abstract class GhCliAuthInstallTask : DefaultTask() {
         |            }
         |        }
         |    }
+        |
+        |    dependencyResolutionManagement {
+        |        repositories {
+        |            maven {
+        |                name = "GitHubPackages"
+        |                url = uri("https://maven.pkg.github.com/$org/*")
+        |                credentials {
+        |                    username = ""
+        |                    password = token.get()
+        |                }
+        |            }
+        |        }
+        |    }
         |}
     """.trimMargin()
 }
