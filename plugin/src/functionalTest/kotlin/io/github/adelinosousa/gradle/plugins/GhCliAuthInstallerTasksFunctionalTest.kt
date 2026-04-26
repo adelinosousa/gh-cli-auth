@@ -2,6 +2,7 @@ package io.github.adelinosousa.gradle.plugins
 
 import io.github.adelinosousa.gradle.plugins.support.GhCliAuthFunctionalTestSetup
 import io.github.adelinosousa.gradle.tasks.GhCliAuthInstallTask
+import io.github.adelinosousa.gradle.tasks.GhCliAuthInstaller
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.string.shouldContain
@@ -9,19 +10,19 @@ import io.kotest.matchers.string.shouldNotContain
 import kotlin.test.Test
 import java.io.File
 
-class GhCliAuthToolchainPluginFunctionalTest : GhCliAuthFunctionalTestSetup() {
+class GhCliAuthInstallerTasksFunctionalTest : GhCliAuthFunctionalTestSetup() {
 
     private fun fakeGradleUserHome(): File =
         projectDir.resolve(".gradle-home").apply { mkdirs() }
 
     private fun initScriptFile(gradleHome: File): File =
-        gradleHome.resolve("init.d/${GhCliAuthInstallTask.INIT_SCRIPT_NAME}")
+        GhCliAuthInstaller.initScriptFile(gradleHome)
 
-    private fun writeBuildWithToolchainPlugin(gradleHome: File) {
+    private fun writeBuildWithProjectPlugin(gradleHome: File) {
         buildFile.writeText(
             """
             plugins {
-                id("io.github.adelinosousa.gradle.plugins.toolchain.gh-cli-auth")
+                id("io.github.adelinosousa.gradle.plugins.project.gh-cli-auth")
             }
 
             tasks.named<io.github.adelinosousa.gradle.tasks.GhCliAuthInstallTask>("ghCliAuthInstall") {
@@ -36,12 +37,12 @@ class GhCliAuthToolchainPluginFunctionalTest : GhCliAuthFunctionalTestSetup() {
     }
 
     @Test
-    fun `should apply toolchain plugin without settings or project plugin`() {
+    fun `should expose install and uninstall tasks via project plugin`() {
         val gradleHome = fakeGradleUserHome()
-        writeBuildWithToolchainPlugin(gradleHome)
+        writeBuildWithProjectPlugin(gradleHome)
 
         project
-            .withArguments("tasks", "--group=gh-cli-auth")
+            .withArguments("tasks", "--group=${GhCliAuthInstallTask.TASK_GROUP}")
             .build()
             .output
             .shouldContain("ghCliAuthInstall")
@@ -51,7 +52,7 @@ class GhCliAuthToolchainPluginFunctionalTest : GhCliAuthFunctionalTestSetup() {
     @Test
     fun `should create init script in gradle user home`() {
         val gradleHome = fakeGradleUserHome()
-        writeBuildWithToolchainPlugin(gradleHome)
+        writeBuildWithProjectPlugin(gradleHome)
 
         project
             .withArguments("ghCliAuthInstall")
@@ -63,7 +64,7 @@ class GhCliAuthToolchainPluginFunctionalTest : GhCliAuthFunctionalTestSetup() {
     @Test
     fun `should bake org into init script from gradle property`() {
         val gradleHome = fakeGradleUserHome()
-        writeBuildWithToolchainPlugin(gradleHome)
+        writeBuildWithProjectPlugin(gradleHome)
 
         project
             .withArguments("ghCliAuthInstall")
@@ -76,7 +77,7 @@ class GhCliAuthToolchainPluginFunctionalTest : GhCliAuthFunctionalTestSetup() {
     @Test
     fun `should include inline gh auth token logic in init script`() {
         val gradleHome = fakeGradleUserHome()
-        writeBuildWithToolchainPlugin(gradleHome)
+        writeBuildWithProjectPlugin(gradleHome)
 
         project
             .withArguments("ghCliAuthInstall")
@@ -91,7 +92,7 @@ class GhCliAuthToolchainPluginFunctionalTest : GhCliAuthFunctionalTestSetup() {
     @Test
     fun `should not contain hardcoded tokens in init script`() {
         val gradleHome = fakeGradleUserHome()
-        writeBuildWithToolchainPlugin(gradleHome)
+        writeBuildWithProjectPlugin(gradleHome)
 
         project
             .withArguments("ghCliAuthInstall")
@@ -104,7 +105,7 @@ class GhCliAuthToolchainPluginFunctionalTest : GhCliAuthFunctionalTestSetup() {
     @Test
     fun `should be idempotent when run multiple times`() {
         val gradleHome = fakeGradleUserHome()
-        writeBuildWithToolchainPlugin(gradleHome)
+        writeBuildWithProjectPlugin(gradleHome)
 
         project.withArguments("ghCliAuthInstall").build()
         val firstContent = initScriptFile(gradleHome).readText()
@@ -123,7 +124,7 @@ class GhCliAuthToolchainPluginFunctionalTest : GhCliAuthFunctionalTestSetup() {
         buildFile.writeText(
             """
             plugins {
-                id("io.github.adelinosousa.gradle.plugins.toolchain.gh-cli-auth")
+                id("io.github.adelinosousa.gradle.plugins.project.gh-cli-auth")
             }
 
             tasks.named<io.github.adelinosousa.gradle.tasks.GhCliAuthInstallTask>("ghCliAuthInstall") {
@@ -147,7 +148,7 @@ class GhCliAuthToolchainPluginFunctionalTest : GhCliAuthFunctionalTestSetup() {
     @Test
     fun `should configure pluginManagement repositories in the generated init script`() {
         val gradleHome = fakeGradleUserHome()
-        writeBuildWithToolchainPlugin(gradleHome)
+        writeBuildWithProjectPlugin(gradleHome)
 
         project
             .withArguments("ghCliAuthInstall")
@@ -162,7 +163,7 @@ class GhCliAuthToolchainPluginFunctionalTest : GhCliAuthFunctionalTestSetup() {
     @Test
     fun `should configure dependencyResolutionManagement repositories in the generated init script`() {
         val gradleHome = fakeGradleUserHome()
-        writeBuildWithToolchainPlugin(gradleHome)
+        writeBuildWithProjectPlugin(gradleHome)
 
         project
             .withArguments("ghCliAuthInstall")
@@ -176,7 +177,7 @@ class GhCliAuthToolchainPluginFunctionalTest : GhCliAuthFunctionalTestSetup() {
     @Test
     fun `should remove init script when it exists`() {
         val gradleHome = fakeGradleUserHome()
-        writeBuildWithToolchainPlugin(gradleHome)
+        writeBuildWithProjectPlugin(gradleHome)
 
         project.withArguments("ghCliAuthInstall").build()
         initScriptFile(gradleHome).exists().shouldBeTrue()
@@ -188,10 +189,8 @@ class GhCliAuthToolchainPluginFunctionalTest : GhCliAuthFunctionalTestSetup() {
     @Test
     fun `should fail install when gh CLI token is missing required scopes`() {
         val gradleHome = fakeGradleUserHome()
-        writeBuildWithToolchainPlugin(gradleHome)
+        writeBuildWithProjectPlugin(gradleHome)
 
-        // Override the default fake gh script with a token that lacks
-        // the required `packages` and `org` resource scopes.
         fakeGhExtension.execute(validScopes = listOf("repo"))
 
         val result = project
@@ -205,7 +204,7 @@ class GhCliAuthToolchainPluginFunctionalTest : GhCliAuthFunctionalTestSetup() {
     @Test
     fun `should succeed uninstall even when init script does not exist`() {
         val gradleHome = fakeGradleUserHome()
-        writeBuildWithToolchainPlugin(gradleHome)
+        writeBuildWithProjectPlugin(gradleHome)
 
         initScriptFile(gradleHome).exists().shouldBeFalse()
 

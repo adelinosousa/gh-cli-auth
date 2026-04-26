@@ -16,6 +16,7 @@ public abstract class GhCliAuthBase {
         const val GH_ORG_SETTER_PROPERTY: String = "gh.cli.auth.github.org"
         const val GH_ENV_KEY_SETTER_PROPERTY: String = "gh.cli.auth.env.name"
         const val GH_PROPERTY_KEY_SETTER_PROPERTY: String = "gh.cli.auth.property.name"
+        const val GH_AUTO_INSTALL_GLOBAL_INIT_SCRIPT_PROPERTY: String = "gh.cli.auth.auto.install.global.init.script"
         const val GH_EXTRA_TOKEN_KEY: String = "gh.cli.auth.token"
 
         const val DEFAULT_TOKEN_ENV_KEY: String = "GITHUB_TOKEN"

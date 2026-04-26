@@ -1,3 +1,3 @@
 plugins {
-    id("io.github.adelinosousa.gradle.plugins.toolchain.gh-cli-auth") version "local-SNAPSHOT"
+    id("io.github.adelinosousa.gradle.plugins.project.gh-cli-auth") version "local-SNAPSHOT"
 }
