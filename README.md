@@ -4,26 +4,25 @@
 [![Continuous Integration](https://github.com/adelinosousa/gh-cli-auth/actions/workflows/pr-checks.yml/badge.svg)](https://github.com/adelinosousa/gh-cli-auth/actions/workflows/pr-checks.yml)
 [![Gradle Plugin Portal](https://img.shields.io/gradle-plugin-portal/v/io.github.adelinosousa.gradle.plugins.settings.gh-cli-auth.svg?label=Settings%20Plugin)](https://plugins.gradle.org/plugin/io.github.adelinosousa.gradle.plugins.settings.gh-cli-auth)
 [![Gradle Plugin Portal](https://img.shields.io/gradle-plugin-portal/v/io.github.adelinosousa.gradle.plugins.project.gh-cli-auth.svg?label=Project%20Plugin)](https://plugins.gradle.org/plugin/io.github.adelinosousa.gradle.plugins.project.gh-cli-auth)
-[![Gradle Plugin Portal](https://img.shields.io/gradle-plugin-portal/v/io.github.adelinosousa.gradle.plugins.toolchain.gh-cli-auth.svg?label=Toolchain%20Plugin)](https://plugins.gradle.org/plugin/io.github.adelinosousa.gradle.plugins.toolchain.gh-cli-auth)
 
 1. [Overview](#overview)
 2. [Features](#features)
 3. [Installation](#installation)
     - [A) Settings Plugin (Recommended)](#a-settings-plugin-recommended)
     - [B) Project Plugin (Per Project)](#b-project-plugin-per-project)
-    - [C) Toolchain Plugin (Global Setup)](#c-toolchain-plugin-global-setup)
-4. [Usage](#usage)
+4. [Global Init Script](#global-init-script)
+5. [Usage](#usage)
     - [1) Required: Set Your GitHub Organization](#1-required-tell-the-plugin-which-organization-to-use)
     - [2) Choose How to Provide Credentials](#2-choose-how-you-want-to-provide-credentials)
-5. [Configuration Options](#configuration-options)
+6. [Configuration Options](#configuration-options)
     - [Token Resolution Order](#token-resolution-order)
     - [GitHub CLI Scopes](#github-cli-scopes-cli-fallback)
     - [Repository Configuration](#repository-thats-registered)
-6. [CI Tips](#ci-tips)
-7. [Troubleshooting](#troubleshooting)
-8. [Limitations](#limitations)
-9. [Contributing](#contributing)
-10. [License](#license)
+7. [CI Tips](#ci-tips)
+8. [Troubleshooting](#troubleshooting)
+9. [Limitations](#limitations)
+10. [Contributing](#contributing)
+11. [License](#license)
 
 ## Overview
 
@@ -38,7 +37,7 @@ This plugin family configures the GitHub Packages Maven repository for your org 
 > [!NOTE] 
 > This allows you to onboard this plugin to existing production CI/CD pipelines with minimal changes, while also supporting local development via the GitHub CLI.
 
-It works as a **settings** plugin (centralized repository management for the whole build), a **project** plugin (per‑project repository + a `ghCliAuth` extension to read the token), and/or a **toolchain** plugin (one‑time Gradle init setup via Gradle tasks).
+It works as a **settings** plugin (centralized repository management for the whole build) or a **project** plugin (per‑project repository + a `ghCliAuth` extension to read the token, plus optional `ghCliAuthInstall` / `ghCliAuthUninstall` tasks for managing a global Gradle init script).
 
 ## Features
 
@@ -49,7 +48,7 @@ It works as a **settings** plugin (centralized repository management for the who
 
 ## Installation
 
-Choose **one** of the settings, toolchain, or project plugins for repository configuration. The project plugin can be combined with either settings or toolchain if you also need access to the token via the `ghCliAuth` extension.
+Choose **one** of the settings or project plugins for repository configuration. They can also be combined: the settings plugin handles centralized repositories, the project plugin exposes the `ghCliAuth` extension and the install/uninstall tasks for the global init script.
 
 > [!TIP]
 > **Recommendation:** In multi‑module builds (or when using `RepositoriesMode.FAIL_ON_PROJECT_REPOS`), prefer the **settings** plugin to centralize repository configuration. The **project** plugin declares repositories at project level and may conflict with `FAIL_ON_PROJECT_REPOS`.
@@ -101,48 +100,38 @@ With the project plugin applied, your project will have:
 - The **`ghCliAuth`** extension exposing the token:
     - Kotlin: `val token: String? = extensions.getByName("ghCliAuth") as io.github.adelinosousa.gradle.extensions.GhCliAuthExtension; token.token.get()`
     - Groovy: `def token = extensions.getByName("ghCliAuth").token.get()`
+- Two tasks for managing the optional global init script:
+    - `ghCliAuthInstall` — writes `~/.gradle/init.d/gh-cli-auth.init.gradle.kts`.
+    - `ghCliAuthUninstall` — removes it.
 
-### C) Toolchain plugin (global setup)
+## Global init script
 
-The toolchain plugin is a global alternative to settings and project plugins. It also solves Gradle timing/lifecycle issues when working with privately hosted settings plugins.
+The global init script is an optional, machine‑wide setup that authenticates via `gh auth token` *before* any settings plugins resolve. It's useful when working with privately hosted settings plugins (where settings‑plugin chicken‑and‑egg timing is a problem), or when you want one Gradle config to cover every build on the machine.
 
-It installs a Gradle init script to `~/.gradle/init.d/` that authenticates via `gh auth token` before any settings plugins resolve.
+It registers your GitHub Packages Maven repository in **both** `pluginManagement.repositories` and `dependencyResolutionManagement.repositories`, so private plugins **and** private libraries (e.g. shared version catalogs / BOMs) resolve.
 
-**Kotlin DSL – `build.gradle.kts`**
+You can install it two ways:
 
-```kotlin
-plugins {
-    id("io.github.adelinosousa.gradle.plugins.toolchain.gh-cli-auth") version "<latest>"
-}
-```
-
-**Groovy DSL – `build.gradle`**
-
-```groovy
-plugins {
-    id 'io.github.adelinosousa.gradle.plugins.toolchain.gh-cli-auth' version '<latest>'
-}
-```
-
-Then run the install task once:
+**Option 1 — Run the task (project plugin):**
 
 ```bash
 ./gradlew ghCliAuthInstall
-```
-
-This writes an init script to `~/.gradle/init.d/gh-cli-auth.init.gradle.kts` that:
-- Runs `gh auth token` at settings time using Gradle's `providers.exec` (configuration cache compatible).
-- Registers your GitHub Packages Maven repository in **both** `pluginManagement.repositories` and `dependencyResolutionManagement.repositories`, so private plugins **and** private libraries (e.g. shared version catalogs / BOMs) resolve.
-- Applies globally to every Gradle build on the machine.
-
-To remove the init script:
-
-```bash
+# To remove:
 ./gradlew ghCliAuthUninstall
 ```
 
-> [!NOTE]
-> The toolchain plugin is standalone — it does not require the settings or project plugin. It only needs `gh.cli.auth.github.org` set in `gradle.properties`.
+**Option 2 — Opt in via the settings plugin:**
+
+Set this in `gradle.properties`:
+
+```properties
+gh.cli.auth.auto.install.global.init.script=true
+```
+
+The settings plugin will then write the init script (idempotently — only when content changes) the next time the build is evaluated. Use the project plugin's `ghCliAuthUninstall` task to remove it.
+
+> [!WARNING]
+> The init script is a **global** artifact under `~/.gradle/init.d/` that affects every Gradle build on the machine. Enabling the opt‑in property in one project's `gradle.properties` writes machine‑wide config.
 
 > [!IMPORTANT]
 > **To consume private libraries via the init script's `dependencyResolutionManagement` entry, opt in by setting `RepositoriesMode.PREFER_SETTINGS` (or `FAIL_ON_PROJECT_REPOS`) in your build's `settings.gradle.kts`:**
@@ -199,11 +188,12 @@ You can do nothing (and rely on the GitHub CLI path below), or pick one of these
 | `gh.cli.auth.github.org`            | `gradle.properties`                 | **(required)** | GitHub Organization used to build the repo URL and name the repo entry (`https://maven.pkg.github.com/<org>/*`).               |
 | `gh.cli.auth.env.name`              | `gradle.properties`                 | `GITHUB_TOKEN` | Name of the environment variable the plugin checks **first** for the token.                                                    |
 | `gh.cli.auth.property.name`         | `gradle.properties`                 | `gpr.token`    | Name of the Gradle property the plugin checks **second** for the token (e.g., pass `-Pgpr.token=...` or define in properties). |
+| `gh.cli.auth.auto.install.global.init.script` | `gradle.properties`       | `false`        | When `true`, the **settings** plugin writes the global init script under `~/.gradle/init.d/` on build evaluation (idempotent). |
 | `gradle.extra["gh.cli.auth.token"]` | **read** in `settings.gradle(.kts)` | n/a            | Token shared by the **settings** plugin for use by other settings logic/plugins.                                               |
 | `ghCliAuth.token`                   | **read** in `build.gradle(.kts)`    | n/a            | Token exposed by the **project** plugin’s extension.                                                                           |
 | `-Dgh.cli.binary.path=/path/to/gh`  | JVM/system property                 | auto‑detect    | Override the `gh` binary path used by the CLI fallback. Useful for custom installs (e.g., Homebrew prefix, Nix).               |
-| `ghCliAuthInstall`                  | Gradle task (toolchain plugin)      | n/a            | Installs a Gradle init script to `~/.gradle/init.d/` for global GitHub Packages authentication.                               |
-| `ghCliAuthUninstall`                | Gradle task (toolchain plugin)      | n/a            | Removes the Gradle init script installed by `ghCliAuthInstall`.                                                                |
+| `ghCliAuthInstall`                  | Gradle task (project plugin)        | n/a            | Installs a Gradle init script to `~/.gradle/init.d/` for global GitHub Packages authentication.                                |
+| `ghCliAuthUninstall`                | Gradle task (project plugin)        | n/a            | Removes the Gradle init script installed by `ghCliAuthInstall`.                                                                |
 
 ### Token resolution order
 

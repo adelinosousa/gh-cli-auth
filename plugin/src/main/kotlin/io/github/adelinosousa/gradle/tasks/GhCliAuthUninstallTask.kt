@@ -19,11 +19,8 @@ public abstract class GhCliAuthUninstallTask : DefaultTask() {
 
     @TaskAction
     public fun uninstall() {
-        val gradleUserHome = File(gradleUserHomeDir.get())
-        val initScript = gradleUserHome.resolve("init.d/${GhCliAuthInstallTask.INIT_SCRIPT_NAME}")
-        val deleted = initScript.delete()
-
-        if (deleted) {
+        val initScript = GhCliAuthInstaller.initScriptFile(File(gradleUserHomeDir.get()))
+        if (initScript.delete()) {
             logger.lifecycle("Removed init script: ${initScript.absolutePath}")
         } else {
             logger.lifecycle("No init script found at: ${initScript.absolutePath}")

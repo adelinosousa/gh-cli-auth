@@ -2,11 +2,16 @@ package io.github.adelinosousa.gradle.plugins
 
 import io.github.adelinosousa.gradle.plugins.GhCliAuthBase.Companion.DEFAULT_TOKEN_ENV_KEY
 import io.github.adelinosousa.gradle.plugins.GhCliAuthBase.Companion.DEFAULT_TOKEN_PROPERTY_KEY
+import io.github.adelinosousa.gradle.plugins.GhCliAuthBase.Companion.GH_AUTO_INSTALL_GLOBAL_INIT_SCRIPT_PROPERTY
 import io.github.adelinosousa.gradle.plugins.GhCliAuthBase.Companion.GH_ENV_KEY_SETTER_PROPERTY
 import io.github.adelinosousa.gradle.plugins.GhCliAuthBase.Companion.GH_PROPERTY_KEY_SETTER_PROPERTY
 import io.github.adelinosousa.gradle.plugins.support.GhCliAuthFake
 import io.github.adelinosousa.gradle.plugins.support.GhCliAuthFunctionalTestSetup
+import io.github.adelinosousa.gradle.tasks.GhCliAuthInstaller
+import io.kotest.matchers.booleans.shouldBeFalse
+import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.string.shouldContain
+import java.io.File
 import kotlin.test.Test
 
 class GhCliAuthSettingsPluginFunctionalTest : GhCliAuthFunctionalTestSetup() {
@@ -218,6 +223,57 @@ class GhCliAuthSettingsPluginFunctionalTest : GhCliAuthFunctionalTestSetup() {
         output
             .shouldContain("Attempting to use GitHub credentials from gradle property: $customPropKey")
             .shouldContain("gh.cli.auth.token: $expectedToken")
+    }
+
+    @Test
+    fun `should not auto-install global init script by default`() {
+        val gradleHome = fakeGradleUserHome()
+
+        writeSettings()
+        runHelp(gradleHome)
+
+        GhCliAuthInstaller.initScriptFile(gradleHome).exists().shouldBeFalse()
+    }
+
+    @Test
+    fun `should auto-install global init script when opt-in property is true`() {
+        val gradleHome = fakeGradleUserHome()
+
+        propertiesFile.appendText("\n$GH_AUTO_INSTALL_GLOBAL_INIT_SCRIPT_PROPERTY=true\n")
+        writeSettings()
+        runHelp(gradleHome)
+
+        val initScript = GhCliAuthInstaller.initScriptFile(gradleHome)
+        initScript.exists().shouldBeTrue()
+        initScript.readText().shouldContain("https://maven.pkg.github.com/$GIVEN_ORG_VALUE/*")
+    }
+
+    @Test
+    fun `should be idempotent on repeated builds with auto-install enabled`() {
+        val gradleHome = fakeGradleUserHome()
+        val initScript = GhCliAuthInstaller.initScriptFile(gradleHome)
+
+        propertiesFile.appendText("\n$GH_AUTO_INSTALL_GLOBAL_INIT_SCRIPT_PROPERTY=true\n")
+        writeSettings()
+
+        runHelp(gradleHome)
+        val first = initScript.readText()
+
+        runHelp(gradleHome)
+        val second = initScript.readText()
+
+        first.shouldContain(second)
+        second.shouldContain(first)
+    }
+
+    private fun fakeGradleUserHome(): File =
+        projectDir.resolve(".gradle-home").apply { mkdirs() }
+
+    private fun runHelp(gradleHome: File) {
+        project
+            .withArguments("help", "--gradle-user-home", gradleHome.absolutePath)
+            .withEnvironment(mapOf(DEFAULT_TOKEN_ENV_KEY to "ghp_anything"))
+            .build()
     }
 
     private fun writeSettings(

@@ -1,5 +1,6 @@
 package io.github.adelinosousa.gradle.plugins
 
+import io.github.adelinosousa.gradle.tasks.GhCliAuthInstaller
 import org.gradle.api.Plugin
 import org.gradle.api.initialization.Settings
 import org.gradle.kotlin.dsl.extra
@@ -23,5 +24,22 @@ public class GhCliAuthSettingsPlugin : GhCliAuthBase(), Plugin<Settings> {
             addTrustedRepositoriesIfMissing()
             addUserConfiguredOrgGhPackagesRepository(provider)
         }
+
+        installGlobalInitScriptIfNeeded(settings, provider.githubOrg)
+    }
+
+    private fun installGlobalInitScriptIfNeeded(settings: Settings, githubOrg: String) {
+        val enabled = settings.providers
+            .gradleProperty(GH_AUTO_INSTALL_GLOBAL_INIT_SCRIPT_PROPERTY)
+            .orNull
+            ?.toBooleanStrictOrNull()
+            ?: false
+
+        if (!enabled) return
+
+        GhCliAuthInstaller.installIfNeeded(
+            gradleUserHome = settings.gradle.gradleUserHomeDir,
+            githubOrg = githubOrg,
+        )
     }
 }
