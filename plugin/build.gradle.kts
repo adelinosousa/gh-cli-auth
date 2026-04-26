@@ -54,7 +54,7 @@ tasks.named<Test>("test") {
 }
 
 mavenPublishing {
-    publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
+    publishToMavenCentral(automaticRelease = true)
     signAllPublications()
 
     coordinates("io.github.adelinosousa", "gh-cli-auth-plugin", version.toString())
