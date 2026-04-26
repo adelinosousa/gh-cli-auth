@@ -1,12 +1,16 @@
 package io.github.adelinosousa.gradle.tasks
 
 import io.github.adelinosousa.gradle.github.GhBinaryResolver
+import io.github.adelinosousa.gradle.github.GhCliAuthParser
+import io.github.adelinosousa.gradle.github.GhCliAuthProcessor
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.UntrackedTask
 import java.io.File
+import javax.inject.Inject
 
 @UntrackedTask(because = "Writes to Gradle user home which is outside the project directory")
 public abstract class GhCliAuthInstallTask : DefaultTask() {
@@ -23,10 +27,18 @@ public abstract class GhCliAuthInstallTask : DefaultTask() {
     @get:Input
     public abstract val gradleUserHomeDir: Property<String>
 
+    @get:Inject
+    internal abstract val providers: ProviderFactory
+
     @TaskAction
     public fun install() {
         val gradleUserHome = File(gradleUserHomeDir.get())
         val ghBin = GhBinaryResolver.resolve()
+
+        GhCliAuthProcessor
+            .create(providers)
+            .get()
+            .run(GhCliAuthParser::parse)
 
         val initDir = gradleUserHome.resolve("init.d").apply { mkdirs() }
         val initScript = initDir.resolve(INIT_SCRIPT_NAME)
