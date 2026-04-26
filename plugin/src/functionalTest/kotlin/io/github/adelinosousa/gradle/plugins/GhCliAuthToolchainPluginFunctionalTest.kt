@@ -172,6 +172,23 @@ class GhCliAuthToolchainPluginFunctionalTest : GhCliAuthFunctionalTestSetup() {
     }
 
     @Test
+    fun `should fail install when gh CLI token is missing required scopes`() {
+        val gradleHome = fakeGradleUserHome()
+        writeBuildWithToolchainPlugin(gradleHome)
+
+        // Override the default fake gh script with a token that lacks
+        // the required `packages` and `org` resource scopes.
+        fakeGhExtension.execute(validScopes = listOf("repo"))
+
+        val result = project
+            .withArguments("ghCliAuthInstall")
+            .buildAndFail()
+
+        result.output.shouldContain("GitHub CLI token is missing required scopes")
+        initScriptFile(gradleHome).exists().shouldBeFalse()
+    }
+
+    @Test
     fun `should succeed uninstall even when init script does not exist`() {
         val gradleHome = fakeGradleUserHome()
         writeBuildWithToolchainPlugin(gradleHome)
