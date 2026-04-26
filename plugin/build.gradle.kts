@@ -2,6 +2,7 @@ plugins {
     `kotlin-dsl`
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.gradle.plugin.publish)
+    alias(libs.plugins.maven.publish)
 }
 
 group = "io.github.adelinosousa"
@@ -50,6 +51,38 @@ tasks.named<Test>("test") {
      */
     jvmArgs("-Xshare:off")
     useJUnitPlatform()
+}
+
+mavenPublishing {
+    publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
+    signAllPublications()
+
+    coordinates("io.github.adelinosousa", "gh-cli-auth-plugin", version.toString())
+
+    pom {
+        name.set("Gradle GitHub CLI Auth")
+        description.set("Configures Gradle access to GitHub Maven Packages via gh CLI. CI/CD friendly.")
+        url.set("https://gh-cli-auth.digibit.uk")
+        licenses {
+            license {
+                name.set("GNU Affero General Public License v3.0")
+                url.set("https://www.gnu.org/licenses/agpl-3.0.txt")
+                distribution.set("repo")
+            }
+        }
+        developers {
+            developer {
+                id.set("adelinosousa")
+                name.set("Adelino Sousa")
+                email.set("lino.sousa.86@gmail.com")
+            }
+        }
+        scm {
+            url.set("https://github.com/adelinosousa/gh-cli-auth")
+            connection.set("scm:git:git://github.com/adelinosousa/gh-cli-auth.git")
+            developerConnection.set("scm:git:ssh://git@github.com/adelinosousa/gh-cli-auth.git")
+        }
+    }
 }
 
 gradlePlugin {
