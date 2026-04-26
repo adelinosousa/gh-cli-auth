@@ -58,7 +58,7 @@ jobs:
 
       - name: Build
         shell: bash
-        run: ./gradlew build -x test -x functionalTest
+        run: ./gradlew build -x test -x functionalTest --no-build-cache --rerun-tasks
         env:
           GH_TOKEN: ${{ secrets.TEST_PAT }}
 
